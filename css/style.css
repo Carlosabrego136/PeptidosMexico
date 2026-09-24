@@ -134,33 +134,16 @@ header.main .container {
   align-items: center;
   gap: 12px;
 }
-.logo .mark {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1.5px solid var(--gold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--gold);
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 18px;
-}
-.logo .name {
-  font-family: var(--font-serif);
-  font-size: 19px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  line-height: 1.1;
-}
-.logo .name small {
+.logo-img {
+  height: 44px;
+  width: auto;
   display: block;
-  font-family: var(--font-sans);
-  font-size: 9px;
-  letter-spacing: 0.28em;
-  color: var(--muted);
-  font-weight: 500;
+}
+.logo-img-footer {
+  height: 48px;
+  background: var(--cream);
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
 nav.primary {
@@ -753,7 +736,6 @@ footer.main {
 }
 .footer-grid h4 { color: var(--white); font-size: 14px; font-family: var(--font-sans); font-weight: 600; margin-bottom: 14px; }
 .footer-grid li { font-size: 13px; margin-bottom: 9px; color: #a8a091; }
-.footer-brand .logo .name, .footer-brand .logo .mark { color: var(--white); border-color: var(--gold-light); }
 .footer-brand p { font-size: 13px; margin-top: 14px; color: #a8a091; max-width: 260px; }
 .footer-bottom {
   display: flex;
@@ -773,6 +755,37 @@ footer.main {
   font-size: 10.5px;
   color: #cfc7b8;
 }
+
+.social-row { display: flex; gap: 10px; }
+.social-row a {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  transition: transform 0.15s;
+}
+.social-row a:hover { transform: translateY(-2px); }
+.social-row img { width: 100%; height: 100%; object-fit: cover; }
+
+.wa-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  z-index: 200;
+}
+.wa-float svg { width: 28px; height: 28px; color: white; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 980px) {
