@@ -560,6 +560,17 @@ body.menu-open { overflow: hidden; }
 }
 .hero-video-cta:hover { background: var(--gold-light); transform: translateY(-2px); }
 .hero-video-cta svg { width: 15px; height: 15px; flex-shrink: 0; }
+.hero-video-cta-img {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.hero-video-cta-img:hover { background: none; transform: translateY(-2px); filter: brightness(1.05); }
+.hero-video-cta-img img { display: block; height: 56px; width: auto; }
+@media (max-width: 560px) {
+  .hero-video-cta-img img { height: 46px; }
+}
 
 .hero-video-bottom {
   padding-bottom: 30px;
