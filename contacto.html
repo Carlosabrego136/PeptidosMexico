@@ -195,6 +195,26 @@
   </div>
 </div>
 
+<div class="cart-drawer-overlay" id="cartDrawerOverlay">
+  <div class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle">
+    <div class="cart-drawer-head">
+      <h3 id="cartDrawerTitle">Tu carrito</h3>
+      <button class="cart-drawer-close" id="cartDrawerClose" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="cart-drawer-body" id="cartDrawerBody"></div>
+    <div class="cart-drawer-foot">
+      <div class="pm-total-row"><span>Subtotal</span><span id="cartSubtotal">$0 MXN</span></div>
+      <div class="pm-total-row"><span>Envío nacional (fijo)</span><span id="cartShipping">$220 MXN</span></div>
+      <div class="pm-total-row pm-total-final"><span>Total</span><span id="cartTotal">$0 MXN</span></div>
+      <a href="https://wa.me/5213131095135" target="_blank" rel="noopener" class="product-modal-wa" id="cartWaLink">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.1-1.3A10 10 0 1012 2zm5.8 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5.1-4.5-.1-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5.2.5.8 1.9.8 2 .1.2.1.4 0 .6-.1.2-.2.3-.3.5-.2.2-.3.3-.5.5-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.7-.1.3.1 1.8.9 2.1 1 .3.2.5.2.6.3.1.2.1.9-.1 1.6z"/></svg>
+        Finalizar pedido por WhatsApp
+      </a>
+      <button type="button" class="cart-clear-btn" id="cartClearBtn">Vaciar carrito</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/main.js"></script>
 </body>
 </html>
