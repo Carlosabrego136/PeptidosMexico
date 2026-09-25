@@ -1715,6 +1715,15 @@ body.modal-open { overflow: hidden; }
   color: var(--ink);
   padding-top: 8px;
 }
+.ship-free { color: #2f9e5c; font-weight: 700; }
+.ship-strike { color: var(--muted); text-decoration: line-through; font-weight: 400; font-size: 11.5px; margin-left: 4px; }
+.ship-hint {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin: 6px 0 0;
+  text-align: center;
+}
+.ship-hint.ship-hint-success { color: #2f9e5c; font-weight: 600; }
 .product-modal-qty {
   display: flex;
   align-items: center;

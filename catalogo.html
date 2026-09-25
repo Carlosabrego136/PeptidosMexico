@@ -99,6 +99,7 @@
         <div class="check-item"><input type="checkbox" data-filter-mg="3 mL"> 3 mL</div>
         <div class="check-item"><input type="checkbox" data-filter-mg="10 mg"> 10 mg</div>
         <div class="check-item"><input type="checkbox" data-filter-mg="10 mL"> 10 mL</div>
+        <div class="check-item"><input type="checkbox" data-filter-mg="30 mg"> 30 mg</div>
         <div class="check-item"><input type="checkbox" data-filter-mg="60 mg"> 60 mg</div>
         <div class="check-item"><input type="checkbox" data-filter-mg="100 mg"> 100 mg</div>
         <button type="button" class="filter-clear" id="filterClear">Quitar filtros</button>
@@ -111,11 +112,23 @@
         </div>
         <div class="catalog-grid" id="catalogGrid">
 
-          <div class="prod-card" data-presentations="60 mg"
-            data-name="Retatrutide" data-cat="Metabolismo · 60 mg" data-formula="Research Peptide"
-            data-price="$4,350 MXN" data-img="img/prod-retatrutide.jpg">
-            <div class="thumb photo"><img src="img/prod-retatrutide.jpg" alt="Retatrutide 60 mg"></div>
-            <div class="info"><span class="tag">Metabolismo</span><h4>Retatrutide</h4><p class="mg">Research Peptide · 60 mg</p><p class="price">$4,350 MXN</p><button class="btn btn-primary add">Agregar al carrito</button></div>
+          <div class="prod-card" data-presentations="10 mg 30 mg 60 mg"
+            data-name="Retatrutide" data-cat="Metabolismo" data-formula="Research Peptide"
+            data-price="$1,200 MXN" data-img="img/prod-retatrutide.jpg"
+            data-variants='[{"label":"10 mg","price":1200,"img":"img/prod-retatrutide.jpg","alt":"Retatrutide 10 mg"},{"label":"30 mg","price":2500,"img":"img/prod-retatrutide.jpg","alt":"Retatrutide 30 mg"},{"label":"60 mg","price":4350,"img":"img/prod-retatrutide.jpg","alt":"Retatrutide 60 mg"}]'>
+            <div class="thumb photo"><img class="variant-img" src="img/prod-retatrutide.jpg" alt="Retatrutide"></div>
+            <div class="info">
+              <span class="tag">Metabolismo</span>
+              <h4>Retatrutide</h4>
+              <p class="mg">Research Peptide</p>
+              <select class="prod-variant-select">
+                <option value="0">10 mg — $1,200 MXN</option>
+                <option value="1">30 mg — $2,500 MXN</option>
+                <option value="2">60 mg — $4,350 MXN</option>
+              </select>
+              <p class="price variant-price">$1,200 MXN</p>
+              <button class="btn btn-primary add">Agregar al carrito</button>
+            </div>
           </div>
 
           <div class="prod-card" data-presentations="10 mg"
@@ -257,8 +270,9 @@
     <div class="cart-drawer-body" id="cartDrawerBody"></div>
     <div class="cart-drawer-foot">
       <div class="pm-total-row"><span>Subtotal</span><span id="cartSubtotal">$0 MXN</span></div>
-      <div class="pm-total-row"><span>Envío nacional (fijo)</span><span id="cartShipping">$220 MXN</span></div>
+      <div class="pm-total-row"><span>Envío nacional</span><span id="cartShipping">$220 MXN</span></div>
       <div class="pm-total-row pm-total-final"><span>Total</span><span id="cartTotal">$0 MXN</span></div>
+      <p class="ship-hint" id="cartShipHint"></p>
 
       <div class="pay-method-tabs" role="tablist">
         <button type="button" class="pay-method-tab active" id="payTabCard" data-method="card">Pagar con tarjeta</button>
@@ -331,8 +345,9 @@
       </div>
 
       <div class="product-modal-totals">
-        <div class="pm-total-row"><span>Envío nacional (fijo)</span><span id="pmShipping">$220 MXN</span></div>
+        <div class="pm-total-row"><span>Envío nacional</span><span id="pmShipping">$220 MXN</span></div>
         <div class="pm-total-row pm-total-final"><span>Total</span><span id="pmTotal">$0 MXN</span></div>
+        <p class="ship-hint" id="pmShipHint"></p>
       </div>
 
       <button class="btn btn-primary product-modal-add" id="pmAddBtn" type="button">Agregar al carrito</button>

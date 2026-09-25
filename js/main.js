@@ -1,6 +1,7 @@
 // Mundo Péptidos México — interactividad básica del prototipo
 
-const SHIPPING_FEE = 220; // costo de envío fijo, nacional
+const SHIPPING_FEE = 220; // costo de envío nacional
+const FREE_SHIPPING_THRESHOLD = 4500; // envío gratis a partir de este monto (subtotal)
 const WA_NUMBER = '5213131095135';
 const fmtMXN = (n) => `$${Math.round(n).toLocaleString('es-MX')} MXN`;
 const parsePrice = (str) => parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 0;
@@ -75,20 +76,45 @@ const Cart = {
     }
 
     const subtotal = Cart.subtotal();
-    const shipping = items.length ? SHIPPING_FEE : 0;
+    const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+    const shipping = items.length ? (freeShipping ? 0 : SHIPPING_FEE) : 0;
     const total = subtotal + shipping;
     if (subtotalEl) subtotalEl.textContent = fmtMXN(subtotal);
-    if (shippingEl) shippingEl.textContent = items.length ? fmtMXN(SHIPPING_FEE) : fmtMXN(0);
+    if (shippingEl) {
+      if (!items.length) {
+        shippingEl.textContent = fmtMXN(0);
+      } else if (freeShipping) {
+        shippingEl.innerHTML = `<span class="ship-free">Gratis</span><span class="ship-strike">${fmtMXN(SHIPPING_FEE)}</span>`;
+      } else {
+        shippingEl.textContent = fmtMXN(SHIPPING_FEE);
+      }
+    }
     if (totalEl) totalEl.textContent = fmtMXN(total);
     const payAmountEl = document.getElementById('payCardAmount');
     if (payAmountEl) payAmountEl.textContent = fmtMXN(total);
+
+    const shipHint = document.getElementById('cartShipHint');
+    if (shipHint) {
+      if (!items.length) {
+        shipHint.textContent = '';
+        shipHint.classList.remove('ship-hint-success');
+      } else if (freeShipping) {
+        shipHint.textContent = '¡Tu pedido ya tiene envío gratis!';
+        shipHint.classList.add('ship-hint-success');
+      } else {
+        const missing = FREE_SHIPPING_THRESHOLD - subtotal;
+        shipHint.textContent = `Te faltan ${fmtMXN(missing)} para envío gratis`;
+        shipHint.classList.remove('ship-hint-success');
+      }
+    }
 
     if (waLink) {
       if (!items.length) {
         waLink.href = `https://wa.me/${WA_NUMBER}`;
       } else {
         const lines = items.map(it => `• ${it.qty} x ${it.name}${it.variant ? ` (${it.variant})` : ''} — ${fmtMXN(it.unit * it.qty)}`);
-        const msg = `Hola! Quiero hacer este pedido:\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotal)}\nEnvío nacional (fijo): ${fmtMXN(shipping)}\nTotal: ${fmtMXN(total)}\n\nVi los productos en la página web.`;
+        const shippingLine = freeShipping ? 'Envío nacional: Gratis 🎉' : `Envío nacional: ${fmtMXN(shipping)}`;
+        const msg = `Hola! Quiero hacer este pedido:\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotal)}\n${shippingLine}\nTotal: ${fmtMXN(total)}\n\nVi los productos en la página web.`;
         waLink.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
       }
     }
@@ -320,18 +346,40 @@ document.addEventListener('DOMContentLoaded', () => {
       return currentProduct ? currentProduct.name : '';
     };
 
+    const pmShipHint = document.getElementById('pmShipHint');
+
     const updateTotals = () => {
       const unit = currentUnitPrice();
+      const subtotal = unit * qty;
+      const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+      const shipping = freeShipping ? 0 : SHIPPING_FEE;
       pmPrice.textContent = fmtMXN(unit);
-      pmShipping.textContent = fmtMXN(SHIPPING_FEE);
-      pmTotal.textContent = fmtMXN(unit * qty + SHIPPING_FEE);
+      if (freeShipping) {
+        pmShipping.innerHTML = `<span class="ship-free">Gratis</span><span class="ship-strike">${fmtMXN(SHIPPING_FEE)}</span>`;
+      } else {
+        pmShipping.textContent = fmtMXN(SHIPPING_FEE);
+      }
+      pmTotal.textContent = fmtMXN(subtotal + shipping);
+      if (pmShipHint) {
+        if (freeShipping) {
+          pmShipHint.textContent = '¡Tu pedido ya tiene envío gratis!';
+          pmShipHint.classList.add('ship-hint-success');
+        } else {
+          pmShipHint.textContent = `Te faltan ${fmtMXN(FREE_SHIPPING_THRESHOLD - subtotal)} para envío gratis`;
+          pmShipHint.classList.remove('ship-hint-success');
+        }
+      }
     };
 
     const updateWaLink = () => {
       if (!currentProduct) return;
       const unit = currentUnitPrice();
-      const total = unit * qty + SHIPPING_FEE;
-      const msg = `Hola! Quiero comprar: ${qty} x ${currentLabel()} (${fmtMXN(unit)} c/u) + envío ${fmtMXN(SHIPPING_FEE)} = Total ${fmtMXN(total)} — vi el producto en la página web.`;
+      const subtotal = unit * qty;
+      const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+      const shipping = freeShipping ? 0 : SHIPPING_FEE;
+      const total = subtotal + shipping;
+      const shippingLabel = freeShipping ? 'Gratis 🎉' : fmtMXN(SHIPPING_FEE);
+      const msg = `Hola! Quiero comprar: ${qty} x ${currentLabel()} (${fmtMXN(unit)} c/u) + envío ${shippingLabel} = Total ${fmtMXN(total)} — vi el producto en la página web.`;
       pmWaLink.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
     };
 
@@ -531,7 +579,9 @@ document.addEventListener('DOMContentLoaded', () => {
         payCardSubmit.textContent = 'Procesando…';
         setTimeout(() => {
           payCardSubmit.disabled = false;
-          payCardSubmit.innerHTML = `Pagar <span id="payCardAmount">${fmtMXN(Cart.subtotal() + (Cart.get().length ? SHIPPING_FEE : 0))}</span>`;
+          const subtotalNow = Cart.subtotal();
+          const shippingNow = Cart.get().length ? (subtotalNow >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE) : 0;
+          payCardSubmit.innerHTML = `Pagar <span id="payCardAmount">${fmtMXN(subtotalNow + shippingNow)}</span>`;
           if (payCardNote) {
             payCardNote.textContent = 'El cobro con tarjeta se activará muy pronto. Para no detener tu pedido, lo confirmamos por WhatsApp.';
             payCardNote.classList.add('pay-note-info');
