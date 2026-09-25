@@ -1438,7 +1438,10 @@ footer.main {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(180deg, rgba(242,241,240,0.55) 0%, rgba(242,241,240,0.8) 55%, rgba(242,241,240,0.94) 100%);
+  background: linear-gradient(180deg, rgba(242,241,240,0.3) 0%, rgba(242,241,240,0.5) 55%, rgba(242,241,240,0.7) 100%);
+}
+@media (max-width: 640px) {
+  .footer-video { object-position: 75% center; }
 }
 footer.main > .container {
   position: relative;
