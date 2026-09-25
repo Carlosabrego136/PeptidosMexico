@@ -891,12 +891,6 @@ section { padding: 72px 0; }
   z-index: 0;
   pointer-events: none;
 }
-.why-targo-scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(242, 241, 240, 0.5);
-  z-index: 1;
-}
 .why-targo > .container {
   position: relative;
   z-index: 2;
@@ -1224,12 +1218,6 @@ footer.main {
   object-fit: cover;
   z-index: 0;
   pointer-events: none;
-}
-.footer-scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(242, 241, 240, 0.6);
-  z-index: 1;
 }
 footer.main > .container {
   position: relative;
