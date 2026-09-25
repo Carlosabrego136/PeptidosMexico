@@ -843,6 +843,19 @@ section { padding: 72px 0; }
 .prod-card h4 { font-size: 16px; font-weight: 600; font-family: var(--font-sans); margin-bottom: 2px; }
 .prod-card .mg { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
 .prod-card .price { font-size: 17px; font-weight: 700; color: var(--ink); margin-top: auto; margin-bottom: 12px; }
+.prod-variant-select {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--cream);
+  color: var(--ink);
+  cursor: pointer;
+}
 .prod-card .add {
   width: 100%;
   padding: 10px;
@@ -1609,11 +1622,53 @@ body.modal-open { overflow: hidden; }
   line-height: 1.5;
   margin-bottom: 14px;
 }
+.product-modal-variant {
+  margin-bottom: 16px;
+}
+.product-modal-variant label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+.product-modal-variant select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  background: var(--cream);
+  color: var(--ink);
+  cursor: pointer;
+}
 .product-modal-price {
   font-size: 21px;
   font-weight: 700;
   color: var(--ink);
   margin-bottom: 20px;
+}
+.product-modal-totals {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+  margin-bottom: 18px;
+}
+.pm-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-2);
+  padding: 3px 0;
+}
+.pm-total-row.pm-total-final {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  padding-top: 8px;
 }
 .product-modal-qty {
   display: flex;

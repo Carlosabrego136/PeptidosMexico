@@ -92,7 +92,7 @@
           <li>Composición corporal (1)</li>
           <li>Recuperación (3)</li>
           <li>Regeneración (2)</li>
-          <li>Otros productos (3)</li>
+          <li>Otros productos (2)</li>
         </ul>
         <h4>Presentación</h4>
         <div class="check-item"><input type="checkbox"> 0.1 mg</div>
@@ -105,7 +105,7 @@
 
       <div>
         <div class="results-bar">
-          <span>12 resultados</span>
+          <span>11 resultados</span>
           <span>Ordenar por: Más vendidos</span>
         </div>
         <div class="catalog-grid">
@@ -155,14 +155,19 @@
             <div class="info"><span class="tag">Metabolismo</span><h4>BBG</h4><p class="mg">Research Peptide Blend</p><p class="price">$1,600 MXN</p><button class="btn btn-primary add">Agregar al carrito</button></div>
           </div>
 
-          <div class="prod-card">
-            <div class="thumb photo"><img src="img/prod-bact3.jpg" alt="Agua Bacteriostática 3 mL"></div>
-            <div class="info"><span class="tag">Otros productos</span><h4>Agua Bacteriostática</h4><p class="mg">3 mL</p><p class="price">$150 MXN</p><button class="btn btn-primary add">Agregar al carrito</button></div>
-          </div>
-
-          <div class="prod-card">
-            <div class="thumb photo"><img src="img/prod-bact10.jpg" alt="Agua Bacteriostática 10 mL"></div>
-            <div class="info"><span class="tag">Otros productos</span><h4>Agua Bacteriostática</h4><p class="mg">10 mL</p><p class="price">$280 MXN</p><button class="btn btn-primary add">Agregar al carrito</button></div>
+          <div class="prod-card" data-variants='[{"label":"3 mL","price":150,"img":"img/prod-bact3.jpg","alt":"Agua Bacteriostática 3 mL"},{"label":"10 mL","price":280,"img":"img/prod-bact10.jpg","alt":"Agua Bacteriostática 10 mL"}]'>
+            <div class="thumb photo"><img class="variant-img" src="img/prod-bact3.jpg" alt="Agua Bacteriostática"></div>
+            <div class="info">
+              <span class="tag">Otros productos</span>
+              <h4>Agua Bacteriostática</h4>
+              <p class="mg">Vial multidosis</p>
+              <select class="prod-variant-select">
+                <option value="0">3 mL — $150 MXN</option>
+                <option value="1">10 mL — $280 MXN</option>
+              </select>
+              <p class="price variant-price">$150 MXN</p>
+              <button class="btn btn-primary add">Agregar al carrito</button>
+            </div>
           </div>
 
           <div class="prod-card">

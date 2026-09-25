@@ -227,31 +227,18 @@
 
       <div class="bs-carousel" data-panel="diluyentes" hidden>
         <div class="bs-card bs-reveal" style="transition-delay:200ms" tabindex="0" role="button"
-          data-name="Agua Bacteriostática" data-cat="Diluyente · 3 mL" data-formula="Vial multidosis"
-          data-price="$150 MXN" data-img="img/prod-bact3.jpg">
+          data-name="Agua Bacteriostática" data-cat="Diluyente · 2 presentaciones" data-formula="Vial multidosis"
+          data-price="$150 MXN" data-img="img/prod-bact3.jpg"
+          data-variants='[{"label":"3 mL","price":150,"img":"img/prod-bact3.jpg"},{"label":"10 mL","price":280,"img":"img/prod-bact10.jpg"}]'>
           <div class="bs-card-cat">
             <span class="bs-cat">Diluyente</span>
-            <span class="bs-subcat">3 mL</span>
+            <span class="bs-subcat">3 mL / 10 mL</span>
           </div>
-          <div class="bs-card-img"><img src="img/prod-bact3.jpg" alt="Agua Bacteriostática 3 mL"></div>
+          <div class="bs-card-img"><img src="img/prod-bact3.jpg" alt="Agua Bacteriostática"></div>
           <div class="bs-card-info">
             <p class="bs-name">Agua Bacteriostática</p>
             <p class="bs-formula">Vial multidosis</p>
-            <div class="bs-price-row"><span class="bs-price">$150 MXN</span></div>
-          </div>
-        </div>
-        <div class="bs-card bs-reveal" style="transition-delay:280ms" tabindex="0" role="button"
-          data-name="Agua Bacteriostática" data-cat="Diluyente · 10 mL" data-formula="Vial multidosis"
-          data-price="$280 MXN" data-img="img/prod-bact10.jpg">
-          <div class="bs-card-cat">
-            <span class="bs-cat">Diluyente</span>
-            <span class="bs-subcat">10 mL</span>
-          </div>
-          <div class="bs-card-img"><img src="img/prod-bact10.jpg" alt="Agua Bacteriostática 10 mL"></div>
-          <div class="bs-card-info">
-            <p class="bs-name">Agua Bacteriostática</p>
-            <p class="bs-formula">Vial multidosis</p>
-            <div class="bs-price-row"><span class="bs-price">$280 MXN</span></div>
+            <div class="bs-price-row"><span class="bs-price">Desde $150 MXN</span></div>
           </div>
         </div>
       </div>
@@ -383,6 +370,12 @@
       <span class="product-modal-cat" id="pmCat"></span>
       <h3 class="product-modal-name" id="pmName"></h3>
       <p class="product-modal-formula" id="pmFormula"></p>
+
+      <div class="product-modal-variant" id="pmVariantWrap" hidden>
+        <label for="pmVariantSelect">Presentación</label>
+        <select id="pmVariantSelect"></select>
+      </div>
+
       <p class="product-modal-price" id="pmPrice"></p>
 
       <div class="product-modal-qty">
@@ -392,6 +385,11 @@
           <span id="pmQtyValue">1</span>
           <button type="button" id="pmQtyPlus" aria-label="Aumentar cantidad">+</button>
         </div>
+      </div>
+
+      <div class="product-modal-totals">
+        <div class="pm-total-row"><span>Envío nacional (fijo)</span><span id="pmShipping">$220 MXN</span></div>
+        <div class="pm-total-row pm-total-final"><span>Total</span><span id="pmTotal">$0 MXN</span></div>
       </div>
 
       <button class="btn btn-primary product-modal-add" id="pmAddBtn" type="button">Agregar al carrito</button>

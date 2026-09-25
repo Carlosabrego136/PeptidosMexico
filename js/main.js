@@ -14,6 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Selector de presentación (mg/mL) en tarjetas de catálogo con variantes
+  document.querySelectorAll('.prod-card[data-variants]').forEach(card => {
+    let variants = [];
+    try { variants = JSON.parse(card.dataset.variants); } catch (e) { variants = []; }
+    if (!variants.length) return;
+    const select = card.querySelector('.prod-variant-select');
+    const img = card.querySelector('.variant-img');
+    const priceEl = card.querySelector('.variant-price');
+    if (!select) return;
+    select.addEventListener('change', () => {
+      const v = variants[parseInt(select.value, 10) || 0];
+      if (!v) return;
+      if (img) { img.src = v.img; img.alt = v.alt || card.querySelector('h4')?.textContent || ''; }
+      if (priceEl) priceEl.textContent = `$${v.price.toLocaleString('es-MX')} MXN`;
+    });
+  });
+
   // Filtro de categorías en catálogo (demo visual)
   document.querySelectorAll('.filter-box .cats li').forEach(li => {
     li.addEventListener('click', () => {
@@ -119,25 +136,64 @@ document.addEventListener('DOMContentLoaded', () => {
     // Abrir modal de producto al hacer clic en una tarjeta (sin confundirlo con un arrastre)
     const modalOverlay = document.getElementById('productModalOverlay');
     if (modalOverlay) {
+      const SHIPPING_FEE = 220; // costo de envío fijo, nacional
+      const fmtMXN = (n) => `$${n.toLocaleString('es-MX')} MXN`;
+      const parsePrice = (str) => parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 0;
+
       const pmImage = document.getElementById('pmImage');
       const pmCat = document.getElementById('pmCat');
       const pmName = document.getElementById('pmName');
       const pmFormula = document.getElementById('pmFormula');
+      const pmVariantWrap = document.getElementById('pmVariantWrap');
+      const pmVariantSelect = document.getElementById('pmVariantSelect');
       const pmPrice = document.getElementById('pmPrice');
       const pmQtyValue = document.getElementById('pmQtyValue');
       const pmQtyMinus = document.getElementById('pmQtyMinus');
       const pmQtyPlus = document.getElementById('pmQtyPlus');
+      const pmShipping = document.getElementById('pmShipping');
+      const pmTotal = document.getElementById('pmTotal');
       const pmAddBtn = document.getElementById('pmAddBtn');
       const pmWaLink = document.getElementById('pmWaLink');
       const pmClose = document.getElementById('productModalClose');
       let qty = 1;
       let currentProduct = null;
+      let variants = [];
+      let variantIndex = 0;
 
       const updateQtyUI = () => { pmQtyValue.textContent = qty; };
+
+      const currentUnitPrice = () => {
+        if (variants.length) return variants[variantIndex].price;
+        return parsePrice(currentProduct ? currentProduct.price : 0);
+      };
+      const currentLabel = () => {
+        if (variants.length) return `${currentProduct.name} (${variants[variantIndex].label})`;
+        return currentProduct ? currentProduct.name : '';
+      };
+      const currentPriceStr = () => fmtMXN(currentUnitPrice());
+
+      const updateTotals = () => {
+        const unit = currentUnitPrice();
+        pmPrice.textContent = currentPriceStr();
+        pmShipping.textContent = fmtMXN(SHIPPING_FEE);
+        pmTotal.textContent = fmtMXN(unit * qty + SHIPPING_FEE);
+      };
+
       const updateWaLink = () => {
         if (!currentProduct) return;
-        const msg = `Hola! Quiero comprar: ${qty} x ${currentProduct.name} (${currentProduct.price}) — vi el producto en la página web.`;
+        const unit = currentUnitPrice();
+        const total = unit * qty + SHIPPING_FEE;
+        const msg = `Hola! Quiero comprar: ${qty} x ${currentLabel()} (${fmtMXN(unit)} c/u) + envío ${fmtMXN(SHIPPING_FEE)} = Total ${fmtMXN(total)} — vi el producto en la página web.`;
         pmWaLink.href = `https://wa.me/5213131095135?text=${encodeURIComponent(msg)}`;
+      };
+
+      const applyVariant = () => {
+        if (!variants.length) return;
+        const v = variants[variantIndex];
+        pmImage.src = v.img;
+        pmImage.alt = `${currentProduct.name} ${v.label}`;
+        updateTotals();
+        updateWaLink();
       };
 
       const openModal = (card) => {
@@ -150,15 +206,33 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         qty = 1;
         updateQtyUI();
-        pmImage.src = currentProduct.img;
-        pmImage.alt = currentProduct.name;
+
+        try {
+          variants = card.dataset.variants ? JSON.parse(card.dataset.variants) : [];
+        } catch (e) {
+          variants = [];
+        }
+        variantIndex = 0;
+
         pmCat.textContent = currentProduct.cat;
         pmName.textContent = currentProduct.name;
         pmFormula.textContent = currentProduct.formula;
-        pmPrice.textContent = currentProduct.price;
         pmAddBtn.textContent = 'Agregar al carrito';
         pmAddBtn.classList.remove('added');
-        updateWaLink();
+
+        if (variants.length) {
+          pmVariantWrap.hidden = false;
+          pmVariantSelect.innerHTML = variants.map((v, i) => `<option value="${i}">${v.label} — ${fmtMXN(v.price)}</option>`).join('');
+          pmVariantSelect.value = '0';
+          applyVariant();
+        } else {
+          pmVariantWrap.hidden = true;
+          pmImage.src = currentProduct.img;
+          pmImage.alt = currentProduct.name;
+          updateTotals();
+          updateWaLink();
+        }
+
         modalOverlay.classList.add('open');
         document.body.classList.add('modal-open');
       };
@@ -167,8 +241,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('modal-open');
       };
 
-      pmQtyMinus.addEventListener('click', () => { qty = Math.max(1, qty - 1); updateQtyUI(); updateWaLink(); });
-      pmQtyPlus.addEventListener('click', () => { qty += 1; updateQtyUI(); updateWaLink(); });
+      pmVariantSelect.addEventListener('change', () => {
+        variantIndex = parseInt(pmVariantSelect.value, 10) || 0;
+        applyVariant();
+      });
+      pmQtyMinus.addEventListener('click', () => { qty = Math.max(1, qty - 1); updateQtyUI(); updateTotals(); updateWaLink(); });
+      pmQtyPlus.addEventListener('click', () => { qty += 1; updateQtyUI(); updateTotals(); updateWaLink(); });
       pmAddBtn.addEventListener('click', () => {
         pmAddBtn.textContent = `Agregado (${qty}) ✓`;
         pmAddBtn.classList.add('added');
