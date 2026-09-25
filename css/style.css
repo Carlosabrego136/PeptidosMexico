@@ -212,7 +212,7 @@ nav.primary a.active {
   background: var(--ink);
   transition: transform 0.28s ease, opacity 0.2s ease, background 0.2s ease;
 }
-.hero-video-top .burger span { background: var(--white); }
+.hero-video-top .burger span { background: #111111; }
 .burger.active span { background: var(--ink); }
 .burger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .burger.active span:nth-child(2) { opacity: 0; }
@@ -481,12 +481,12 @@ body.menu-open { overflow: hidden; }
   gap: 26px;
 }
 .hero-video-nav a {
-  color: rgba(250,247,242,0.9);
+  color: #111111;
   font-size: 13.5px;
-  font-weight: 500;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+  font-weight: 600;
+  text-shadow: none;
 }
-.hero-video-nav a:hover { color: var(--white); }
+.hero-video-nav a:hover { color: var(--gold-dark); }
 
 .hero-video-main {
   flex: 1;
@@ -500,10 +500,10 @@ body.menu-open { overflow: hidden; }
   font-size: 12.5px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--gold-light);
-  font-weight: 500;
+  color: #111111;
+  font-weight: 600;
   margin-bottom: 18px;
-  text-shadow: 0 2px 14px rgba(0,0,0,0.45);
+  text-shadow: none;
 }
 .hero-video-headline {
   font-family: 'Jost', sans-serif;
