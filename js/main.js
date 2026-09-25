@@ -327,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pmTotal = document.getElementById('pmTotal');
     const pmAddBtn = document.getElementById('pmAddBtn');
     const pmWaLink = document.getElementById('pmWaLink');
+    const pmCoaBadge = document.getElementById('pmCoaBadge');
     const pmClose = document.getElementById('productModalClose');
     let qty = 1;
     let currentProduct = null;
@@ -415,6 +416,16 @@ document.addEventListener('DOMContentLoaded', () => {
       pmFormula.textContent = currentProduct.formula;
       pmAddBtn.textContent = 'Agregar al carrito';
       pmAddBtn.classList.remove('added');
+
+      if (pmCoaBadge) {
+        const coaUrl = card.dataset.coa || '';
+        if (coaUrl) {
+          pmCoaBadge.href = coaUrl;
+          pmCoaBadge.hidden = false;
+        } else {
+          pmCoaBadge.hidden = true;
+        }
+      }
 
       if (variants.length) {
         pmVariantWrap.hidden = false;
