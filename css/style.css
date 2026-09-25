@@ -1019,13 +1019,21 @@ footer.main {
   flex-wrap: wrap;
   gap: 12px;
 }
-.pay-icons { display: flex; gap: 8px; }
-.pay-icons span {
-  background: #2c2820;
-  border-radius: 3px;
-  padding: 4px 8px;
-  font-size: 10.5px;
-  color: #cfc7b8;
+.pay-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pay-icons img {
+  height: 22px;
+  width: auto;
+  border-radius: 4px;
+  background: var(--white);
+  padding: 3px 6px;
+  display: block;
+}
+@media (min-width: 980px) {
+  .footer-bottom { padding-right: 96px; }
 }
 
 .social-row { display: flex; gap: 10px; }
