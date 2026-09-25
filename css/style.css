@@ -1097,4 +1097,5 @@ footer.main {
   .hero h1 { font-size: 30px; }
   .section-head { flex-direction: column; align-items: flex-start; }
   .footer-grid { grid-template-columns: 1fr; }
+  .logo-img { height: 84px; }
 }
