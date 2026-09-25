@@ -481,6 +481,10 @@ body.menu-open { overflow: hidden; }
   .hero-video-top .logo-img,
   .hero-video-top .logo-img-footer { height: 108px; }
 }
+@media (max-width: 767px) {
+  .hero-video-top .logo-img,
+  .hero-video-top .logo-img-footer { height: 96px; }
+}
 .hero-video-nav {
   display: flex;
   gap: 26px;
