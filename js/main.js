@@ -78,9 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (progressUpdaters[name]) progressUpdaters[name]();
     };
     // Rueda del mouse convertida a scroll horizontal + arrastre
+    // (solo cuando realmente hay hacia dónde deslizar, para no bloquear el scroll normal de la página)
     bsPanels.forEach(panel => {
       panel.addEventListener('wheel', (e) => {
         if (panel.hidden) return;
+        const maxScroll = panel.scrollWidth - panel.clientWidth;
+        if (maxScroll <= 0) return;
+        const atStart = panel.scrollLeft <= 0;
+        const atEnd = panel.scrollLeft >= maxScroll - 1;
+        if ((atStart && e.deltaY < 0) || (atEnd && e.deltaY > 0)) return;
         e.preventDefault();
         panel.scrollLeft += e.deltaY;
       }, { passive: false });
@@ -108,6 +114,83 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }, { threshold: 0.1 });
       bsRevealEls.forEach(el => bsIo.observe(el));
+    }
+
+    // Abrir modal de producto al hacer clic en una tarjeta (sin confundirlo con un arrastre)
+    const modalOverlay = document.getElementById('productModalOverlay');
+    if (modalOverlay) {
+      const pmImage = document.getElementById('pmImage');
+      const pmCat = document.getElementById('pmCat');
+      const pmName = document.getElementById('pmName');
+      const pmFormula = document.getElementById('pmFormula');
+      const pmPrice = document.getElementById('pmPrice');
+      const pmQtyValue = document.getElementById('pmQtyValue');
+      const pmQtyMinus = document.getElementById('pmQtyMinus');
+      const pmQtyPlus = document.getElementById('pmQtyPlus');
+      const pmAddBtn = document.getElementById('pmAddBtn');
+      const pmWaLink = document.getElementById('pmWaLink');
+      const pmClose = document.getElementById('productModalClose');
+      let qty = 1;
+      let currentProduct = null;
+
+      const updateQtyUI = () => { pmQtyValue.textContent = qty; };
+      const updateWaLink = () => {
+        if (!currentProduct) return;
+        const msg = `Hola! Quiero comprar: ${qty} x ${currentProduct.name} (${currentProduct.price}) — vi el producto en la página web.`;
+        pmWaLink.href = `https://wa.me/5213131095135?text=${encodeURIComponent(msg)}`;
+      };
+
+      const openModal = (card) => {
+        currentProduct = {
+          name: card.dataset.name || '',
+          cat: card.dataset.cat || '',
+          formula: card.dataset.formula || '',
+          price: card.dataset.price || '',
+          img: card.dataset.img || ''
+        };
+        qty = 1;
+        updateQtyUI();
+        pmImage.src = currentProduct.img;
+        pmImage.alt = currentProduct.name;
+        pmCat.textContent = currentProduct.cat;
+        pmName.textContent = currentProduct.name;
+        pmFormula.textContent = currentProduct.formula;
+        pmPrice.textContent = currentProduct.price;
+        pmAddBtn.textContent = 'Agregar al carrito';
+        pmAddBtn.classList.remove('added');
+        updateWaLink();
+        modalOverlay.classList.add('open');
+        document.body.classList.add('modal-open');
+      };
+      const closeModal = () => {
+        modalOverlay.classList.remove('open');
+        document.body.classList.remove('modal-open');
+      };
+
+      pmQtyMinus.addEventListener('click', () => { qty = Math.max(1, qty - 1); updateQtyUI(); updateWaLink(); });
+      pmQtyPlus.addEventListener('click', () => { qty += 1; updateQtyUI(); updateWaLink(); });
+      pmAddBtn.addEventListener('click', () => {
+        pmAddBtn.textContent = `Agregado (${qty}) ✓`;
+        pmAddBtn.classList.add('added');
+        const badge = document.querySelector('.cart-count .badge');
+        if (badge) badge.textContent = String((parseInt(badge.textContent, 10) || 0) + qty);
+      });
+      pmClose.addEventListener('click', closeModal);
+      modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+      // Distinguir clic de arrastre: solo abre si el mouse no se movió (o casi nada)
+      document.querySelectorAll('.bs-card').forEach(card => {
+        let downX = 0, downY = 0, dragged = false;
+        card.addEventListener('mousedown', (e) => { downX = e.clientX; downY = e.clientY; dragged = false; });
+        card.addEventListener('mousemove', (e) => {
+          if (Math.abs(e.clientX - downX) > 6 || Math.abs(e.clientY - downY) > 6) dragged = true;
+        });
+        card.addEventListener('click', () => { if (!dragged) openModal(card); });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card); }
+        });
+      });
     }
   }
 
