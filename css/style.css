@@ -452,7 +452,12 @@ body.menu-open { overflow: hidden; }
 .hero-video-section .overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(20,17,13,0.18) 0%, rgba(20,17,13,0.22) 45%, rgba(20,17,13,0.7) 100%);
+  background: linear-gradient(180deg,
+    rgba(250,247,242,0.55) 0%,
+    rgba(250,247,242,0.4) 28%,
+    rgba(250,247,242,0.18) 48%,
+    rgba(20,17,13,0.35) 68%,
+    rgba(20,17,13,0.72) 100%);
 }
 .hero-video-content {
   position: relative;
