@@ -135,14 +135,14 @@ header.main .container {
   gap: 12px;
 }
 .logo-img {
-  height: 44px;
+  height: 68px;
   width: auto;
   display: block;
 }
 .logo-img-footer {
-  height: 48px;
+  height: 72px;
   background: var(--cream);
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 8px;
 }
 
@@ -347,6 +347,169 @@ nav.primary a.active {
   font-weight: 500;
 }
 .hero-badges svg { width: 18px; height: 18px; color: var(--gold); flex-shrink: 0; }
+
+/* ---------- Hero v2: full-screen video hero ---------- */
+.hero-video-section {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--ink);
+}
+.hero-video-section video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.hero-video-section .overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20,17,13,0.35) 0%, rgba(20,17,13,0.35) 45%, rgba(20,17,13,0.88) 100%);
+}
+.hero-video-content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0 24px;
+  max-width: var(--maxw);
+  margin: 0 auto;
+}
+.hero-video-top {
+  padding-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hero-video-top .logo-img { height: 56px; }
+.hero-video-top .logo-img-footer { background: transparent; padding: 0; height: 56px; }
+.hero-video-nav {
+  display: flex;
+  gap: 26px;
+}
+.hero-video-nav a {
+  color: rgba(250,247,242,0.85);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.hero-video-nav a:hover { color: var(--white); }
+
+.hero-video-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 48px;
+}
+.hero-video-eyebrow {
+  font-family: 'Jost', sans-serif;
+  font-size: 12.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+.hero-video-headline {
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  color: var(--white);
+  font-size: clamp(2.6rem, 7vw, 5.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  max-width: 720px;
+}
+.hero-video-headline .accent {
+  font-style: normal;
+  color: var(--gold-light);
+  font-weight: 400;
+}
+.hero-video-headline .dot {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--gold);
+  border-radius: 50%;
+  margin-left: 8px;
+  margin-bottom: 6px;
+}
+.hero-video-sub {
+  color: rgba(250,247,242,0.78);
+  font-size: 15.5px;
+  max-width: 480px;
+  margin-top: 20px;
+  font-family: var(--font-sans);
+}
+.hero-video-cta-row {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+.hero-video-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  color: var(--ink);
+  padding: 15px 28px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  font-family: var(--font-sans);
+}
+.hero-video-cta:hover { background: var(--gold-light); transform: translateY(-2px); }
+.hero-video-cta svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+.hero-video-bottom {
+  padding-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.hero-video-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(250,247,242,0.18);
+}
+.hero-video-badges .item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  color: rgba(250,247,242,0.82);
+  font-weight: 500;
+  font-family: var(--font-sans);
+}
+.hero-video-badges svg { width: 17px; height: 17px; color: var(--gold-light); flex-shrink: 0; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  opacity: 0;
+  animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.fade-up.d1 { animation-delay: 0.1s; }
+.fade-up.d2 { animation-delay: 0.35s; }
+.fade-up.d3 { animation-delay: 0.55s; }
+.fade-up.d4 { animation-delay: 0.75s; }
+.fade-up.d5 { animation-delay: 0.9s; }
+
+@media (max-width: 640px) {
+  .hero-video-nav { display: none; }
+  .hero-video-badges { gap: 16px 22px; }
+}
 
 /* ---------- Feature strip ---------- */
 .strip {
