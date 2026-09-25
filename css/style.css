@@ -849,6 +849,193 @@ section { padding: 72px 0; }
   font-size: 13px;
 }
 
+/* ---------- Best sellers carousel (Productos destacados) ---------- */
+.bs-section {
+  background: #F9F4F0;
+  color: #1a1a1a;
+  padding: 48px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+@media (min-width: 640px) {
+  .bs-section { padding: 64px 0; }
+}
+
+.bs-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.bs-reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.bs-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+@media (min-width: 640px) {
+  .bs-tabs { gap: 24px; margin-bottom: 48px; }
+}
+.bs-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+@media (min-width: 640px) {
+  .bs-tab { gap: 16px; }
+}
+.bs-tab-dot-wrap {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 640px) {
+  .bs-tab-dot-wrap { width: 24px; height: 24px; }
+}
+.bs-tab-dot {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #1a1a1a;
+  animation: bs-scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes bs-scale-in {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.bs-tab-label {
+  font-family: 'Jost', var(--font-sans);
+  font-size: 24px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: lowercase;
+  transition: color 0.3s ease;
+}
+.bs-tab:hover .bs-tab-label { color: #4b5563; }
+.bs-tab.active .bs-tab-label { color: #1a1a1a; }
+@media (min-width: 640px) { .bs-tab-label { font-size: 36px; } }
+@media (min-width: 768px) { .bs-tab-label { font-size: 48px; } }
+
+.bs-carousel-wrap { position: relative; }
+.bs-carousel {
+  display: flex;
+  overflow-x: auto;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.bs-carousel::-webkit-scrollbar { display: none; }
+.bs-carousel:active { cursor: grabbing; }
+
+.bs-card {
+  flex-shrink: 0;
+  width: 260px;
+  border: 1px solid #e5e7eb;
+  margin-left: -1px;
+  padding: 16px 0 24px;
+}
+.bs-card:first-child { margin-left: 0; }
+@media (min-width: 640px) { .bs-card { width: 280px; } }
+@media (min-width: 768px) { .bs-card { width: 300px; } }
+@media (min-width: 980px) { .bs-card { width: calc(25% - 1px); } }
+
+.bs-card-cat {
+  padding: 0 16px;
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.bs-cat {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+}
+.bs-subcat {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.bs-card-img {
+  margin: 0 16px;
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #F9F4F0;
+}
+.bs-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.bs-card:hover .bs-card-img img { transform: scale(1.05); }
+.bs-card-info { margin-top: 16px; text-align: center; padding: 0 16px; }
+.bs-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  transition: color 0.3s ease;
+}
+.bs-formula {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+.bs-price-row {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 8px;
+}
+.bs-price { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.bs-price-old { font-size: 14px; color: #9ca3af; text-decoration: line-through; }
+
+.bs-progress {
+  margin-top: 32px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 280px;
+}
+@media (min-width: 640px) { .bs-progress { margin-top: 40px; } }
+.bs-progress-track {
+  height: 2px;
+  background: #d1d5db;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+}
+.bs-progress-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30%;
+  background: #1a1a1a;
+  border-radius: 999px;
+  transition: transform 0.15s ease-out;
+}
+.bs-view-all { text-align: center; margin-top: 28px; }
+
 /* ---------- Banner / dark section ---------- */
 .banner {
   background:

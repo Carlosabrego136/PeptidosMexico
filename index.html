@@ -148,66 +148,93 @@
   </div>
 </section>
 
-<section style="background:var(--white); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+<section class="bs-section">
   <div class="container">
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">Productos destacados</span>
-        <h2>Nuestros más buscados</h2>
-      </div>
-      <a href="catalogo.html" class="link">Ver todo el catálogo →</a>
+    <div class="bs-tabs bs-reveal">
+      <button class="bs-tab active" data-panel="buscados" type="button">
+        <span class="bs-tab-dot-wrap"></span>
+        <span class="bs-tab-label">más buscados</span>
+      </button>
+      <button class="bs-tab" data-panel="diluyentes" type="button">
+        <span class="bs-tab-dot-wrap"></span>
+        <span class="bs-tab-label">diluyentes</span>
+      </button>
     </div>
-    <div class="prod-grid">
-      <div class="prod-card">
-        <div class="thumb photo"><img src="img/prod-klow.jpg" alt="KLOW 80 mg"></div>
-        <div class="info">
-          <span class="tag">Regeneración</span>
-          <h4>KLOW</h4>
-          <p class="mg">GHK-Cu 50mg + TB-500 10mg + BPC-157 10mg + KPV 10mg · 80 mg</p>
-          <p class="price">$2,550 MXN</p>
-          <button class="btn btn-primary add">Agregar al carrito</button>
+
+    <div class="bs-carousel-wrap">
+      <div class="bs-carousel" data-panel="buscados">
+        <div class="bs-card bs-reveal" style="transition-delay:200ms">
+          <div class="bs-card-cat">
+            <span class="bs-cat">Regeneración</span>
+            <span class="bs-subcat">80 mg</span>
+          </div>
+          <div class="bs-card-img"><img src="img/prod-klow.jpg" alt="KLOW 80 mg"></div>
+          <div class="bs-card-info">
+            <p class="bs-name">KLOW</p>
+            <p class="bs-formula">GHK-Cu 50mg + TB-500 10mg + BPC-157 10mg + KPV 10mg</p>
+            <div class="bs-price-row"><span class="bs-price">$2,550 MXN</span></div>
+          </div>
+        </div>
+        <div class="bs-card bs-reveal" style="transition-delay:280ms">
+          <div class="bs-card-cat">
+            <span class="bs-cat">Regeneración</span>
+            <span class="bs-subcat">70 mg</span>
+          </div>
+          <div class="bs-card-img"><img src="img/prod-bbg.jpg" alt="BBG 70 mg"></div>
+          <div class="bs-card-info">
+            <p class="bs-name">BBG</p>
+            <p class="bs-formula">BPC-157 10mg + GHK-Cu 50mg + TB-500 10mg</p>
+            <div class="bs-price-row"><span class="bs-price">$2,200 MXN</span></div>
+          </div>
+        </div>
+        <div class="bs-card bs-reveal" style="transition-delay:360ms">
+          <div class="bs-card-cat">
+            <span class="bs-cat">Recuperación</span>
+            <span class="bs-subcat">10 mg</span>
+          </div>
+          <div class="bs-card-img"><img src="img/prod-tesamorelin.jpg" alt="Tesamorelin 10 mg"></div>
+          <div class="bs-card-info">
+            <p class="bs-name">Tesamorelin</p>
+            <p class="bs-formula">Research Peptide</p>
+            <div class="bs-price-row"><span class="bs-price">$2,000 MXN</span></div>
+          </div>
         </div>
       </div>
-      <div class="prod-card">
-        <div class="thumb photo"><img src="img/prod-bbg.jpg" alt="BBG 70 mg"></div>
-        <div class="info">
-          <span class="tag">Regeneración</span>
-          <h4>BBG</h4>
-          <p class="mg">BPC-157 10mg + GHK-Cu 50mg + TB-500 10mg · 70 mg</p>
-          <p class="price">$2,200 MXN</p>
-          <button class="btn btn-primary add">Agregar al carrito</button>
+
+      <div class="bs-carousel" data-panel="diluyentes" hidden>
+        <div class="bs-card bs-reveal" style="transition-delay:200ms">
+          <div class="bs-card-cat">
+            <span class="bs-cat">Diluyente</span>
+            <span class="bs-subcat">3 mL</span>
+          </div>
+          <div class="bs-card-img"><img src="img/prod-bact3.jpg" alt="Agua Bacteriostática 3 mL"></div>
+          <div class="bs-card-info">
+            <p class="bs-name">Agua Bacteriostática</p>
+            <p class="bs-formula">Vial multidosis</p>
+            <div class="bs-price-row"><span class="bs-price">$150 MXN</span></div>
+          </div>
+        </div>
+        <div class="bs-card bs-reveal" style="transition-delay:280ms">
+          <div class="bs-card-cat">
+            <span class="bs-cat">Diluyente</span>
+            <span class="bs-subcat">10 mL</span>
+          </div>
+          <div class="bs-card-img"><img src="img/prod-bact10.jpg" alt="Agua Bacteriostática 10 mL"></div>
+          <div class="bs-card-info">
+            <p class="bs-name">Agua Bacteriostática</p>
+            <p class="bs-formula">Vial multidosis</p>
+            <div class="bs-price-row"><span class="bs-price">$280 MXN</span></div>
+          </div>
         </div>
       </div>
-      <div class="prod-card">
-        <div class="thumb photo"><img src="img/prod-tesamorelin.jpg" alt="Tesamorelin 10 mg"></div>
-        <div class="info">
-          <span class="tag">Recuperación</span>
-          <h4>Tesamorelin</h4>
-          <p class="mg">Research Peptide · 10 mg</p>
-          <p class="price">$2,000 MXN</p>
-          <button class="btn btn-primary add">Agregar al carrito</button>
-        </div>
-      </div>
-      <div class="prod-card">
-        <div class="thumb photo"><img src="img/prod-bact3.jpg" alt="Agua Bacteriostática 3 mL"></div>
-        <div class="info">
-          <span class="tag">Diluyente</span>
-          <h4>Agua Bacteriostática</h4>
-          <p class="mg">Vial multidosis · 3 mL</p>
-          <p class="price">$100 MXN</p>
-          <button class="btn btn-primary add">Agregar al carrito</button>
-        </div>
-      </div>
-      <div class="prod-card">
-        <div class="thumb photo"><img src="img/prod-bact10.jpg" alt="Agua Bacteriostática 10 mL"></div>
-        <div class="info">
-          <span class="tag">Diluyente</span>
-          <h4>Agua Bacteriostática</h4>
-          <p class="mg">Vial multidosis · 10 mL</p>
-          <p class="price">$290 MXN</p>
-          <button class="btn btn-primary add">Agregar al carrito</button>
-        </div>
-      </div>
+    </div>
+
+    <div class="bs-progress">
+      <div class="bs-progress-track"><div class="bs-progress-thumb"></div></div>
+    </div>
+
+    <div class="bs-view-all">
+      <a href="catalogo.html" class="link">Ver todo el catálogo →</a>
     </div>
   </div>
 </section>
