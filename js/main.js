@@ -30,6 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Animación blur-in al hacer scroll (sección de catálogo en Inicio)
+  const revealEls = document.querySelectorAll('.reveal');
+  if (revealEls.length) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    revealEls.forEach(el => io.observe(el));
+  }
+
   // Botón "agregar al carrito" — demo visual
   document.querySelectorAll('.add').forEach(btn => {
     btn.addEventListener('click', () => {
