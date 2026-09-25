@@ -894,7 +894,7 @@ section { padding: 72px 0; }
 .why-targo-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(242, 241, 240, 0.87);
+  background: rgba(242, 241, 240, 0.5);
   z-index: 1;
 }
 .why-targo > .container {
@@ -1228,7 +1228,7 @@ footer.main {
 .footer-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(242, 241, 240, 0.9);
+  background: rgba(242, 241, 240, 0.6);
   z-index: 1;
 }
 footer.main > .container {
