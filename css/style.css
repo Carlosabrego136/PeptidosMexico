@@ -1887,6 +1887,90 @@ body.modal-open { overflow: hidden; }
 }
 .cart-clear-btn:hover { color: #c0392b; }
 .header-icons .cart-count { cursor: pointer; }
+
+/* ---------- Método de pago (dentro del carrito) ---------- */
+.pay-method-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px;
+  background: var(--cream);
+}
+.pay-method-tab {
+  flex: 1;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.pay-method-tab.active { background: var(--ink); color: var(--white); }
+.pay-card-panel[hidden], .pay-wa-panel[hidden] { display: none; }
+.pay-card-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pay-card-icons img {
+  height: 24px;
+  width: auto;
+  border-radius: 4px;
+  background: var(--white);
+  border: 1px solid rgba(43, 48, 51, 0.08);
+  padding: 3px 7px;
+}
+.pay-secure {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: auto;
+}
+.pay-secure svg { width: 13px; height: 13px; flex-shrink: 0; }
+.pay-card-panel .field { margin-bottom: 12px; }
+.pay-card-panel .field label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 5px;
+}
+.pay-card-panel .field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  background: var(--cream);
+  letter-spacing: 0.4px;
+}
+.pay-card-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pay-card-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 13px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.pay-card-submit[disabled] { opacity: 0.7; cursor: wait; }
+.pay-card-note {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: center;
+  margin: 0 0 6px;
+}
+.pay-card-note.pay-note-info { color: var(--gold-dark); font-weight: 600; }
 @media (max-width: 560px) {
   .cart-drawer { max-width: 100%; }
 }

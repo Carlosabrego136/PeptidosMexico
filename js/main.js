@@ -80,6 +80,8 @@ const Cart = {
     if (subtotalEl) subtotalEl.textContent = fmtMXN(subtotal);
     if (shippingEl) shippingEl.textContent = items.length ? fmtMXN(SHIPPING_FEE) : fmtMXN(0);
     if (totalEl) totalEl.textContent = fmtMXN(total);
+    const payAmountEl = document.getElementById('payCardAmount');
+    if (payAmountEl) payAmountEl.textContent = fmtMXN(total);
 
     if (waLink) {
       if (!items.length) {
@@ -475,6 +477,73 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (e.target.closest('.cart-item-remove')) {
           Cart.remove(id);
         }
+      });
+    }
+
+    // ---------- Método de pago: tarjeta (vitrina, lista para conectar una pasarela real) / WhatsApp ----------
+    const payTabCard = document.getElementById('payTabCard');
+    const payTabWa = document.getElementById('payTabWa');
+    const payCardPanel = document.getElementById('payCardPanel');
+    const payWaPanel = document.getElementById('payWaPanel');
+    if (payTabCard && payTabWa) {
+      const showMethod = (method) => {
+        payTabCard.classList.toggle('active', method === 'card');
+        payTabWa.classList.toggle('active', method === 'whatsapp');
+        payCardPanel.hidden = method !== 'card';
+        payWaPanel.hidden = method !== 'whatsapp';
+      };
+      payTabCard.addEventListener('click', () => showMethod('card'));
+      payTabWa.addEventListener('click', () => showMethod('whatsapp'));
+    }
+
+    // Formato en vivo de los campos de tarjeta (solo presentación)
+    const cardNumber = document.getElementById('cardNumber');
+    const cardExpiry = document.getElementById('cardExpiry');
+    const cardCvv = document.getElementById('cardCvv');
+    if (cardNumber) {
+      cardNumber.addEventListener('input', () => {
+        const digits = cardNumber.value.replace(/\D/g, '').slice(0, 16);
+        cardNumber.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+      });
+    }
+    if (cardExpiry) {
+      cardExpiry.addEventListener('input', () => {
+        const digits = cardExpiry.value.replace(/\D/g, '').slice(0, 4);
+        cardExpiry.value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+      });
+    }
+    if (cardCvv) {
+      cardCvv.addEventListener('input', () => {
+        cardCvv.value = cardCvv.value.replace(/\D/g, '').slice(0, 4);
+      });
+    }
+
+    // El cobro con tarjeta se activará al conectar una pasarela real (Stripe/Mercado Pago/Conekta o WooCommerce).
+    // Por ahora este botón NUNCA envía ni guarda los datos de la tarjeta: solo confirma el pedido por WhatsApp
+    // para no perder la venta mientras se activa el cobro en línea.
+    const payCardSubmit = document.getElementById('payCardSubmit');
+    const payCardNote = document.getElementById('payCardNote');
+    if (payCardSubmit) {
+      payCardSubmit.addEventListener('click', () => {
+        if (!Cart.get().length) return;
+        const cardNameEl = document.getElementById('cardName');
+        payCardSubmit.disabled = true;
+        payCardSubmit.textContent = 'Procesando…';
+        setTimeout(() => {
+          payCardSubmit.disabled = false;
+          payCardSubmit.innerHTML = `Pagar <span id="payCardAmount">${fmtMXN(Cart.subtotal() + (Cart.get().length ? SHIPPING_FEE : 0))}</span>`;
+          if (payCardNote) {
+            payCardNote.textContent = 'El cobro con tarjeta se activará muy pronto. Para no detener tu pedido, lo confirmamos por WhatsApp.';
+            payCardNote.classList.add('pay-note-info');
+          }
+          // Nunca se guarda ni se envía el número de tarjeta a ningún lado — solo se limpia el formulario.
+          if (cardNumber) cardNumber.value = '';
+          if (cardExpiry) cardExpiry.value = '';
+          if (cardCvv) cardCvv.value = '';
+          if (cardNameEl) cardNameEl.value = '';
+          const waLink = document.getElementById('cartWaLink');
+          if (waLink) window.open(waLink.href, '_blank', 'noopener');
+        }, 900);
       });
     }
   }
