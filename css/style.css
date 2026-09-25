@@ -1131,11 +1131,25 @@ section { padding: 72px 0; }
   border-color: rgba(21, 188, 223, 0.4);
   box-shadow: 0 20px 40px -22px rgba(21, 188, 223, 0.45);
 }
-.why-targo-card svg {
-  width: 30px;
-  height: 30px;
-  color: #15BCDF;
-  margin-bottom: 16px;
+.why-targo-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 20px -8px rgba(43, 48, 51, 0.25);
+  background: #F2F1F0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.why-targo-card:hover .why-targo-icon {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 14px 28px -10px rgba(21, 188, 223, 0.4);
+}
+.why-targo-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .why-targo-card h4 {
   font-family: 'Quantico', 'Arial Narrow', sans-serif;
