@@ -6,78 +6,30 @@ const WA_NUMBER = '5213131095135';
 const fmtMXN = (n) => `$${Math.round(n).toLocaleString('es-MX')} MXN`;
 const parsePrice = (str) => parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 0;
 
-// ---------- Newsletter / suscripción 10% de descuento ----------
-// CONFIGURACIÓN: cuando se cree la cuenta de Brevo (o Mailchimp) para los
-// correos automáticos, pegar aquí la URL del formulario del proveedor.
-// Mientras este valor esté vacío, los correos se siguen capturando y
-// guardando de forma segura (NEWSLETTER_KEY más abajo) para no perder
-// ningún registro, pero todavía no se envía nada automático.
-const NEWSLETTER_ENDPOINT = 'https://16982b44.sibforms.com/serve/MUIFAKGVveQ7UZHLPDjec-FH66-BWuSLQiog-WCB0SWLZ47gRLXDvwUQ8q3_XbPGiQs7BT19bS6eV2-qNcgJfLGR7edhZGgCaVqre7sKjqXqDBo6txXlqroYnoaN2R8gTxZ-j3kIi9YcDDC5PkYYwsJW2z1PjJb2jlSV9L8TdEaPWep84l9fI0o8Nfa6_ayT3YrzmzsUUTmDjrYeGg==';
-const NEWSLETTER_DISCOUNT_CODE = 'BIENVENIDO10';
-const NEWSLETTER_KEY = 'mpm_newsletter_subscribers_v1';
+// ---------- Suscripción 10% de descuento vía WhatsApp ----------
+// CONFIGURACIÓN: cuando el cliente cree su Canal de difusión de WhatsApp
+// (gratis, desde la app de WhatsApp Business), pegar aquí el link de
+// invitación (algo como https://whatsapp.com/channel/xxxxxxxxxxxxx).
+// Mientras esté vacío, el botón de "Síguenos en nuestro Canal" se
+// mantiene oculto para no mostrar un link roto.
+const WHATSAPP_CHANNEL_LINK = '';
+const NEWSLETTER_WA_MESSAGE = 'Hola, quiero suscribirme para recibir mi 10% de descuento y futuras promociones 😊';
 
 function initNewsletter() {
-  const form = document.getElementById('newsletterForm');
-  if (!form) return;
-  const emailInput = document.getElementById('newsletterEmail');
-  const msg = document.getElementById('newsletterMsg');
-  const btn = form.querySelector('.newsletter-btn');
+  const waBtn = document.getElementById('newsletterWaBtn');
+  if (waBtn) {
+    waBtn.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(NEWSLETTER_WA_MESSAGE)}`;
+  }
 
-  const showMsg = (text, ok) => {
-    if (!msg) return;
-    msg.textContent = text;
-    msg.hidden = false;
-    msg.className = 'newsletter-msg ' + (ok ? 'ok' : 'err');
-  };
-
-  const getSubscribers = () => {
-    try { return JSON.parse(localStorage.getItem(NEWSLETTER_KEY)) || []; }
-    catch { return []; }
-  };
-  const saveSubscriber = (email) => {
-    const list = getSubscribers();
-    if (!list.some(s => s.email.toLowerCase() === email.toLowerCase())) {
-      list.push({ email, date: new Date().toISOString() });
-      localStorage.setItem(NEWSLETTER_KEY, JSON.stringify(list));
+  const channelBtn = document.getElementById('newsletterChannelBtn');
+  if (channelBtn) {
+    if (WHATSAPP_CHANNEL_LINK) {
+      channelBtn.href = WHATSAPP_CHANNEL_LINK;
+      channelBtn.hidden = false;
+    } else {
+      channelBtn.hidden = true;
     }
-  };
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = (emailInput.value || '').trim();
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!emailOk) {
-      showMsg('Ingresa un correo válido, por favor.', false);
-      return;
-    }
-
-    const original = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Enviando…';
-
-    // Guardamos siempre localmente para no perder ningún registro.
-    saveSubscriber(email);
-
-    // Si ya hay un proveedor de correo conectado (Brevo/Mailchimp), le
-    // avisamos también a él para que mande el correo de bienvenida real.
-    if (NEWSLETTER_ENDPOINT) {
-      try {
-        await fetch(NEWSLETTER_ENDPOINT, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({ EMAIL: email }).toString(),
-        });
-      } catch (err) {
-        // Si falla el proveedor externo, igual ya quedó guardado localmente.
-      }
-    }
-
-    showMsg(`¡Listo! Tu código de 10% de descuento es: ${NEWSLETTER_DISCOUNT_CODE}`, true);
-    form.reset();
-    btn.disabled = false;
-    btn.textContent = original;
-  });
+  }
 }
 
 // ---------- Carrito (persistente vía localStorage, compartido entre páginas) ----------
