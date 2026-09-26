@@ -12,7 +12,7 @@ const parsePrice = (str) => parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 
 // Mientras este valor esté vacío, los correos se siguen capturando y
 // guardando de forma segura (NEWSLETTER_KEY más abajo) para no perder
 // ningún registro, pero todavía no se envía nada automático.
-const NEWSLETTER_ENDPOINT = ''; // ej: 'https://XXXXX.list-manage.com/subscribe/post?u=...&id=...'
+const NEWSLETTER_ENDPOINT = 'https://16982b44.sibforms.com/serve/MUIFAKGVveQ7UZHLPDjec-FH66-BWuSLQiog-WCB0SWLZ47gRLXDvwUQ8q3_XbPGiQs7BT19bS6eV2-qNcgJfLGR7edhZGgCaVqre7sKjqXqDBo6txXlqroYnoaN2R8gTxZ-j3kIi9YcDDC5PkYYwsJW2z1PjJb2jlSV9L8TdEaPWep84l9fI0o8Nfa6_ayT3YrzmzsUUTmDjrYeGg==';
 const NEWSLETTER_DISCOUNT_CODE = 'BIENVENIDO10';
 const NEWSLETTER_KEY = 'mpm_newsletter_subscribers_v1';
 
