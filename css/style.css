@@ -1618,6 +1618,33 @@ section { padding: 72px 0; }
 .verify-card p { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
 .verify-card .link { font-size: 12px; font-weight: 600; color: var(--gold-dark); }
 
+.verify-card-photo {
+  position: relative;
+  min-height: 260px;
+  background-size: cover;
+  background-position: center;
+  border: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.verify-card-photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(20,17,13,0.15) 0%,
+    rgba(20,17,13,0.35) 45%,
+    rgba(20,17,13,0.88) 100%);
+  z-index: 1;
+}
+.verify-card-photo > * { position: relative; z-index: 2; }
+.verify-card-photo .icon-sq { background: rgba(250,247,242,0.92); }
+.verify-card-photo h4 { color: var(--white); font-size: 15.5px; }
+.verify-card-photo p { color: rgba(250,247,242,0.85); }
+.verify-card-photo .link { color: var(--gold-light); }
+
 /* ---------- Footer (Targo-style: light bg + video + Quantico type + cyan accent) ---------- */
 footer.main {
   position: relative;
