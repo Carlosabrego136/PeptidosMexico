@@ -1591,6 +1591,7 @@ section { padding: 72px 0; }
 }
 .coa-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
 .coa-badge:hover { background: #d9f0dc; }
+.coa-badge[hidden] { display: none; }
 
 .verify-grid {
   display: grid;
@@ -2230,6 +2231,19 @@ body.modal-open { overflow: hidden; }
   background: rgba(255,255,255,0.03);
 }
 .newsletter-copy { max-width: 480px; }
+.newsletter-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(37, 211, 102, 0.15);
+  border: 1px solid rgba(37, 211, 102, 0.45);
+  color: #3ddc74;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
 .newsletter-copy h3 {
   font-family: var(--font-serif);
   color: var(--white);
