@@ -147,7 +147,17 @@ const Cart = {
   }
 };
 
+function initSplash() {
+  const splash = document.getElementById('splashScreen');
+  if (!splash) return;
+  setTimeout(() => {
+    splash.classList.add('splash-hide');
+    setTimeout(() => splash.remove(), 650);
+  }, 900);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initSplash();
   initNewsletter();
 
   // Marcar link activo en nav según la página actual
