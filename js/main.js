@@ -32,6 +32,16 @@ function initNewsletter() {
   }
 }
 
+// ---------- Cupones de descuento ----------
+// El mismo código BIENVENIDO10 que se entrega por WhatsApp (mensaje de bienvenida
+// y botón de suscripción) se puede aplicar aquí en el carrito — funciona igual
+// sin importar si el cliente elige pagar con tarjeta o por WhatsApp/Transferencia,
+// porque ambos métodos usan el mismo total ya calculado por el carrito.
+const COUPONS = {
+  'BIENVENIDO10': { percent: 10, label: '10% de bienvenida' }
+};
+const COUPON_KEY = 'mpm_coupon_v1';
+
 // ---------- Carrito (persistente vía localStorage, compartido entre páginas) ----------
 const CART_KEY = 'mpm_cart_v1';
 const Cart = {
@@ -69,6 +79,30 @@ const Cart = {
   subtotal() {
     return Cart.get().reduce((s, i) => s + i.unit * i.qty, 0);
   },
+  getCoupon() {
+    try {
+      const code = localStorage.getItem(COUPON_KEY);
+      return code && COUPONS[code] ? code : null;
+    } catch (e) { return null; }
+  },
+  applyCoupon(rawCode) {
+    const code = String(rawCode || '').trim().toUpperCase();
+    if (!code) return { ok: false, message: 'Escribe un código.' };
+    if (!COUPONS[code]) return { ok: false, message: 'Ese código no es válido.' };
+    if (!Cart.get().length) return { ok: false, message: 'Agrega productos al carrito primero.' };
+    try { localStorage.setItem(COUPON_KEY, code); } catch (e) {}
+    Cart.renderAll();
+    return { ok: true, message: `¡Código aplicado! ${COUPONS[code].label}.` };
+  },
+  clearCoupon() {
+    try { localStorage.removeItem(COUPON_KEY); } catch (e) {}
+    Cart.renderAll();
+  },
+  discount(subtotal) {
+    const code = Cart.getCoupon();
+    if (!code) return 0;
+    return Math.round(subtotal * (COUPONS[code].percent / 100));
+  },
   renderAll() {
     const count = Cart.count();
     document.querySelectorAll('.cart-count .badge').forEach(b => { b.textContent = String(count); });
@@ -104,8 +138,40 @@ const Cart = {
     const subtotal = Cart.subtotal();
     const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
     const shipping = items.length ? (freeShipping ? 0 : SHIPPING_FEE) : 0;
-    const total = subtotal + shipping;
+    const couponCode = items.length ? Cart.getCoupon() : null;
+    const discount = couponCode ? Cart.discount(subtotal) : 0;
+    const total = subtotal - discount + shipping;
     if (subtotalEl) subtotalEl.textContent = fmtMXN(subtotal);
+
+    const discountRow = document.getElementById('cartDiscountRow');
+    const discountAmountEl = document.getElementById('cartDiscountAmount');
+    const couponCodeEl = document.getElementById('cartCouponCode');
+    if (discountRow) {
+      if (couponCode && discount > 0) {
+        discountRow.hidden = false;
+        if (discountAmountEl) discountAmountEl.textContent = `-${fmtMXN(discount)}`;
+        if (couponCodeEl) couponCodeEl.textContent = `(${couponCode})`;
+      } else {
+        discountRow.hidden = true;
+      }
+    }
+
+    const couponInput = document.getElementById('couponInput');
+    const couponApplyBtn = document.getElementById('couponApplyBtn');
+    if (couponInput && couponApplyBtn) {
+      if (couponCode) {
+        couponInput.value = couponCode;
+        couponInput.disabled = true;
+        couponApplyBtn.textContent = 'Quitar';
+        couponApplyBtn.dataset.mode = 'remove';
+      } else {
+        couponInput.disabled = false;
+        couponApplyBtn.textContent = 'Aplicar';
+        couponApplyBtn.dataset.mode = 'apply';
+        if (!items.length) couponInput.value = '';
+      }
+    }
+
     if (shippingEl) {
       if (!items.length) {
         shippingEl.textContent = fmtMXN(0);
@@ -140,7 +206,8 @@ const Cart = {
       } else {
         const lines = items.map(it => `• ${it.qty} x ${it.name}${it.variant ? ` (${it.variant})` : ''} — ${fmtMXN(it.unit * it.qty)}`);
         const shippingLine = freeShipping ? 'Envío nacional: Gratis 🎉' : `Envío nacional: ${fmtMXN(shipping)}`;
-        const msg = `Hola! Quiero hacer este pedido:\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotal)}\n${shippingLine}\nTotal: ${fmtMXN(total)}\n\nVi los productos en la página web.`;
+        const discountLine = (couponCode && discount > 0) ? `Descuento (${couponCode}): -${fmtMXN(discount)}\n` : '';
+        const msg = `Hola! Quiero hacer este pedido:\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotal)}\n${discountLine}${shippingLine}\nTotal: ${fmtMXN(total)}\n\nVi los productos en la página web.`;
         waLink.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
       }
     }
@@ -614,6 +681,28 @@ document.addEventListener('DOMContentLoaded', () => {
       payTabWa.addEventListener('click', () => showMethod('whatsapp'));
     }
 
+    // ---------- Código de descuento (aplica igual en tarjeta y WhatsApp/Transferencia) ----------
+    const couponInputEl = document.getElementById('couponInput');
+    const couponApplyBtnEl = document.getElementById('couponApplyBtn');
+    const couponMsgEl = document.getElementById('couponMsg');
+    const runCoupon = () => {
+      if (!couponInputEl || !couponApplyBtnEl) return;
+      if (couponApplyBtnEl.dataset.mode === 'remove') {
+        Cart.clearCoupon();
+        if (couponMsgEl) { couponMsgEl.textContent = ''; couponMsgEl.className = 'cart-coupon-msg'; }
+        return;
+      }
+      const result = Cart.applyCoupon(couponInputEl.value);
+      if (couponMsgEl) {
+        couponMsgEl.textContent = result.message;
+        couponMsgEl.className = `cart-coupon-msg ${result.ok ? 'coupon-ok' : 'coupon-error'}`;
+      }
+    };
+    if (couponApplyBtnEl) couponApplyBtnEl.addEventListener('click', runCoupon);
+    if (couponInputEl) {
+      couponInputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); runCoupon(); } });
+    }
+
     // Formato en vivo de los campos de tarjeta (solo presentación)
     const cardNumber = document.getElementById('cardNumber');
     const cardExpiry = document.getElementById('cardExpiry');
@@ -651,7 +740,8 @@ document.addEventListener('DOMContentLoaded', () => {
           payCardSubmit.disabled = false;
           const subtotalNow = Cart.subtotal();
           const shippingNow = Cart.get().length ? (subtotalNow >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE) : 0;
-          payCardSubmit.innerHTML = `Pagar <span id="payCardAmount">${fmtMXN(subtotalNow + shippingNow)}</span>`;
+          const discountNow = Cart.getCoupon() ? Cart.discount(subtotalNow) : 0;
+          payCardSubmit.innerHTML = `Pagar <span id="payCardAmount">${fmtMXN(subtotalNow - discountNow + shippingNow)}</span>`;
           if (payCardNote) {
             payCardNote.textContent = 'El cobro con tarjeta se activará muy pronto. Para no detener tu pedido, lo confirmamos por WhatsApp.';
             payCardNote.classList.add('pay-note-info');
