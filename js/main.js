@@ -156,9 +156,30 @@ function initSplash() {
   }, 900);
 }
 
+const COOKIE_CONSENT_KEY = 'mpm_cookie_consent_v1';
+
+function initCookieConsent() {
+  const banner = document.getElementById('cookieConsent');
+  if (!banner) return;
+  const acceptBtn = document.getElementById('cookieAcceptBtn');
+
+  let alreadyAccepted = false;
+  try { alreadyAccepted = localStorage.getItem(COOKIE_CONSENT_KEY) === 'accepted'; } catch {}
+
+  if (!alreadyAccepted) {
+    setTimeout(() => { banner.hidden = false; }, 1200);
+  }
+
+  acceptBtn?.addEventListener('click', () => {
+    try { localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted'); } catch {}
+    banner.hidden = true;
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initSplash();
   initNewsletter();
+  initCookieConsent();
 
   // Marcar link activo en nav según la página actual
   const path = window.location.pathname.split('/').pop() || 'index.html';
