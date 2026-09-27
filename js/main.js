@@ -12,7 +12,7 @@ const parsePrice = (str) => parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 
 // invitación (algo como https://whatsapp.com/channel/xxxxxxxxxxxxx).
 // Mientras esté vacío, el botón de "Síguenos en nuestro Canal" se
 // mantiene oculto para no mostrar un link roto.
-const WHATSAPP_CHANNEL_LINK = '';
+const WHATSAPP_CHANNEL_LINK = 'https://whatsapp.com/channel/0029VbDVC0z8qIzl58tnaU1y';
 const NEWSLETTER_WA_MESSAGE = 'Hola, quiero suscribirme para recibir mi 10% de descuento y futuras promociones 😊';
 
 function initNewsletter() {
