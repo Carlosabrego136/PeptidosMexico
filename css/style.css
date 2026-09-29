@@ -2121,6 +2121,57 @@ body.modal-open { overflow: hidden; }
 .header-icons .cart-count { cursor: pointer; }
 
 /* ---------- Método de pago (dentro del carrito) ---------- */
+.cart-discount-row[hidden] { display: none; }
+.cart-discount-row { align-items: flex-start; gap: 10px; }
+.cart-discount-row span:first-child { color: #2f9e5c; font-weight: 600; flex: 1; }
+.cart-discount-amount { color: #2f9e5c; font-weight: 700; white-space: nowrap; }
+
+.first-purchase-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 12px 0 2px;
+  padding: 10px 12px;
+  border: 1px dashed var(--gold-light);
+  border-radius: 10px;
+  background: var(--cream);
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.first-purchase-check input { width: 16px; height: 16px; accent-color: var(--gold); flex-shrink: 0; cursor: pointer; }
+.first-purchase-check strong { color: var(--gold-dark); }
+
+.volume-tier-wrap[hidden] { display: none; }
+.volume-tier-wrap { margin-bottom: 16px; }
+.volume-tier-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--cream-2);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.volume-tier-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold-light), var(--gold));
+  transition: width 0.3s ease;
+}
+.volume-tier-hint {
+  font-size: 12px;
+  color: var(--ink-2);
+  text-align: center;
+  margin: 0 0 4px;
+}
+.volume-tier-hint strong { color: var(--gold-dark); }
+.volume-tier-note {
+  font-size: 10.5px;
+  color: var(--muted);
+  text-align: center;
+  margin: 0;
+}
+
 .pay-method-tabs {
   display: flex;
   gap: 8px;

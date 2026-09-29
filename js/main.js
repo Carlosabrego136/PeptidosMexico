@@ -32,6 +32,52 @@ function initNewsletter() {
   }
 }
 
+// ---------- Descuentos por volumen (solo aplican pagando por transferencia) ----------
+// Escalones acordados con la clienta: entre más se compra, mayor el % de descuento.
+// Se ordenan de mayor a menor monto para que la búsqueda encuentre el escalón correcto.
+const VOLUME_TIERS = [
+  { min: 6000, pct: 20 },
+  { min: 3000, pct: 10 },
+  { min: 2500, pct: 8 },
+  { min: 2000, pct: 5 },
+  { min: 1000, pct: 3 },
+];
+const FIRST_PURCHASE_PCT = 10; // 10% adicional en la primera compra (se suma al escalón, si aplica)
+
+function getVolumeTier(subtotal) {
+  return VOLUME_TIERS.find(t => subtotal >= t.min) || null;
+}
+// Siguiente escalón por alcanzar (para la barra de progreso), en orden ascendente de monto
+function getNextVolumeTier(subtotal) {
+  const ascending = [...VOLUME_TIERS].sort((a, b) => a.min - b.min);
+  return ascending.find(t => subtotal < t.min) || null;
+}
+
+// ---------- "Primera compra" (checkbox del cliente, se confirma al finalizar por WhatsApp) ----------
+const FIRST_PURCHASE_KEY = 'mpm_first_purchase_v1';
+function isFirstPurchase() {
+  try { return localStorage.getItem(FIRST_PURCHASE_KEY) === '1'; } catch (e) { return false; }
+}
+function setFirstPurchase(val) {
+  try { localStorage.setItem(FIRST_PURCHASE_KEY, val ? '1' : '0'); } catch (e) {}
+}
+
+// Calcula subtotal/descuento/envío/total para un método de pago dado.
+// method: 'card' (Mercado Pago/tarjeta) -> solo 10% primera compra + envío gratis, SIN tabla escalonada.
+// method: 'whatsapp' (transferencia)     -> tabla escalonada + 10% primera compra + envío gratis.
+function computeMethodTotals(method, subtotal, hasItems) {
+  const firstPurchase = isFirstPurchase();
+  const tier = method === 'whatsapp' ? getVolumeTier(subtotal) : null;
+  const tierPct = tier ? tier.pct : 0;
+  const firstPct = firstPurchase ? FIRST_PURCHASE_PCT : 0;
+  const discountPct = tierPct + firstPct;
+  const discountAmount = Math.round(subtotal * (discountPct / 100));
+  const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const shipping = hasItems ? (freeShipping ? 0 : SHIPPING_FEE) : 0;
+  const total = Math.max(0, subtotal - discountAmount) + shipping;
+  return { subtotal, tierPct, firstPct, discountPct, discountAmount, freeShipping, shipping, total };
+}
+
 // ---------- Carrito (persistente vía localStorage, compartido entre páginas) ----------
 const CART_KEY = 'mpm_cart_v1';
 const Cart = {
@@ -102,29 +148,51 @@ const Cart = {
     }
 
     const subtotal = Cart.subtotal();
-    const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
-    const shipping = items.length ? (freeShipping ? 0 : SHIPPING_FEE) : 0;
-    const total = subtotal + shipping;
     if (subtotalEl) subtotalEl.textContent = fmtMXN(subtotal);
+
+    // Método de pago activo (por defecto 'card' si aún no se ha tocado nada)
+    const activeTab = document.querySelector('.pay-method-tab.active');
+    const activeMethod = activeTab ? (activeTab.dataset.method || 'card') : 'card';
+    const t = computeMethodTotals(activeMethod, subtotal, !!items.length);
+
     if (shippingEl) {
       if (!items.length) {
         shippingEl.textContent = fmtMXN(0);
-      } else if (freeShipping) {
+      } else if (t.freeShipping) {
         shippingEl.innerHTML = `<span class="ship-free">Gratis</span><span class="ship-strike">${fmtMXN(SHIPPING_FEE)}</span>`;
       } else {
         shippingEl.textContent = fmtMXN(SHIPPING_FEE);
       }
     }
-    if (totalEl) totalEl.textContent = fmtMXN(total);
+
+    const discountRow = document.getElementById('cartDiscountRow');
+    const discountLabelEl = document.getElementById('cartDiscountLabel');
+    const discountAmountEl = document.getElementById('cartDiscountAmount');
+    if (discountRow) {
+      if (items.length && t.discountPct > 0) {
+        discountRow.hidden = false;
+        if (discountLabelEl) {
+          const parts = [];
+          if (t.tierPct) parts.push(`${t.tierPct}% por volumen`);
+          if (t.firstPct) parts.push(`${t.firstPct}% primera compra`);
+          discountLabelEl.textContent = `Descuento (${parts.join(' + ')})`;
+        }
+        if (discountAmountEl) discountAmountEl.textContent = `−${fmtMXN(t.discountAmount)}`;
+      } else {
+        discountRow.hidden = true;
+      }
+    }
+
+    if (totalEl) totalEl.textContent = fmtMXN(t.total);
     const payAmountEl = document.getElementById('payCardAmount');
-    if (payAmountEl) payAmountEl.textContent = fmtMXN(total);
+    if (payAmountEl) payAmountEl.textContent = fmtMXN(t.total);
 
     const shipHint = document.getElementById('cartShipHint');
     if (shipHint) {
       if (!items.length) {
         shipHint.textContent = '';
         shipHint.classList.remove('ship-hint-success');
-      } else if (freeShipping) {
+      } else if (t.freeShipping) {
         shipHint.textContent = '¡Tu pedido ya tiene envío gratis!';
         shipHint.classList.add('ship-hint-success');
       } else {
@@ -134,13 +202,46 @@ const Cart = {
       }
     }
 
+    // ---------- Barra de progreso de descuento por volumen (solo transferencia) ----------
+    const tierWrap = document.getElementById('volumeTierWrap');
+    const tierFill = document.getElementById('volumeTierFill');
+    const tierHint = document.getElementById('volumeTierHint');
+    if (tierWrap) {
+      if (!items.length) {
+        tierWrap.hidden = true;
+      } else {
+        tierWrap.hidden = false;
+        const currentTier = getVolumeTier(subtotal);
+        const nextTier = getNextVolumeTier(subtotal);
+        const currentMin = currentTier ? currentTier.min : 0;
+        const spanEnd = nextTier ? nextTier.min : (currentTier ? currentTier.min : VOLUME_TIERS[VOLUME_TIERS.length - 1].min);
+        const spanStart = currentTier ? currentMin : 0;
+        const ratio = spanEnd > spanStart ? Math.min(1, (subtotal - spanStart) / (spanEnd - spanStart)) : 1;
+        if (tierFill) tierFill.style.width = `${Math.round(ratio * 100)}%`;
+        if (tierHint) {
+          if (nextTier) {
+            const missing = nextTier.min - subtotal;
+            tierHint.innerHTML = currentTier
+              ? `Llevas <strong>${currentTier.pct}%</strong> de descuento — te faltan ${fmtMXN(missing)} para el <strong>${nextTier.pct}%</strong>`
+              : `Te faltan ${fmtMXN(missing)} para tu primer descuento (${nextTier.pct}%)`;
+          } else {
+            tierHint.innerHTML = `¡Ya tienes el descuento máximo de <strong>${currentTier.pct}%</strong>! 🎉`;
+          }
+        }
+      }
+    }
+
     if (waLink) {
       if (!items.length) {
         waLink.href = `https://wa.me/${WA_NUMBER}`;
       } else {
+        const waTotals = computeMethodTotals('whatsapp', subtotal, true);
         const lines = items.map(it => `• ${it.qty} x ${it.name}${it.variant ? ` (${it.variant})` : ''} — ${fmtMXN(it.unit * it.qty)}`);
-        const shippingLine = freeShipping ? 'Envío nacional: Gratis 🎉' : `Envío nacional: ${fmtMXN(shipping)}`;
-        const msg = `Hola! Quiero hacer este pedido:\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotal)}\n${shippingLine}\nTotal: ${fmtMXN(total)}\n\nVi los productos en la página web.`;
+        const shippingLine = waTotals.freeShipping ? 'Envío nacional: Gratis 🎉' : `Envío nacional: ${fmtMXN(waTotals.shipping)}`;
+        const discountLine = waTotals.discountPct > 0
+          ? `Descuento (${waTotals.discountPct}%): −${fmtMXN(waTotals.discountAmount)}\n`
+          : '';
+        const msg = `Hola! Quiero hacer este pedido (pago por transferencia):\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotal)}\n${discountLine}${shippingLine}\nTotal: ${fmtMXN(waTotals.total)}\n\nVi los productos en la página web.`;
         waLink.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
       }
     }
@@ -609,9 +710,20 @@ document.addEventListener('DOMContentLoaded', () => {
         payTabWa.classList.toggle('active', method === 'whatsapp');
         payCardPanel.hidden = method !== 'card';
         payWaPanel.hidden = method !== 'whatsapp';
+        Cart.renderAll();
       };
       payTabCard.addEventListener('click', () => showMethod('card'));
       payTabWa.addEventListener('click', () => showMethod('whatsapp'));
+    }
+
+    // ---------- Checkbox "es tu primera compra" (aplica 10% adicional en ambos métodos) ----------
+    const firstPurchaseChk = document.getElementById('firstPurchaseChk');
+    if (firstPurchaseChk) {
+      firstPurchaseChk.checked = isFirstPurchase();
+      firstPurchaseChk.addEventListener('change', () => {
+        setFirstPurchase(firstPurchaseChk.checked);
+        Cart.renderAll();
+      });
     }
 
     // Formato en vivo de los campos de tarjeta (solo presentación)
@@ -650,8 +762,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
           payCardSubmit.disabled = false;
           const subtotalNow = Cart.subtotal();
-          const shippingNow = Cart.get().length ? (subtotalNow >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE) : 0;
-          payCardSubmit.innerHTML = `Pagar <span id="payCardAmount">${fmtMXN(subtotalNow + shippingNow)}</span>`;
+          const cardTotals = computeMethodTotals('card', subtotalNow, Cart.get().length > 0);
+          payCardSubmit.innerHTML = `Pagar <span id="payCardAmount">${fmtMXN(cardTotals.total)}</span>`;
           if (payCardNote) {
             payCardNote.textContent = 'El cobro con tarjeta se activará muy pronto. Para no detener tu pedido, lo confirmamos por WhatsApp.';
             payCardNote.classList.add('pay-note-info');
@@ -661,8 +773,13 @@ document.addEventListener('DOMContentLoaded', () => {
           if (cardExpiry) cardExpiry.value = '';
           if (cardCvv) cardCvv.value = '';
           if (cardNameEl) cardNameEl.value = '';
-          const waLink = document.getElementById('cartWaLink');
-          if (waLink) window.open(waLink.href, '_blank', 'noopener');
+          // Mensaje de confirmación con los totales de TARJETA (sin tabla escalonada por volumen)
+          const items = Cart.get();
+          const lines = items.map(it => `• ${it.qty} x ${it.name}${it.variant ? ` (${it.variant})` : ''} — ${fmtMXN(it.unit * it.qty)}`);
+          const shippingLine = cardTotals.freeShipping ? 'Envío nacional: Gratis 🎉' : `Envío nacional: ${fmtMXN(cardTotals.shipping)}`;
+          const discountLine = cardTotals.discountPct > 0 ? `Descuento (${cardTotals.discountPct}%): −${fmtMXN(cardTotals.discountAmount)}\n` : '';
+          const msg = `Hola! Quiero hacer este pedido (pago con tarjeta / Mercado Pago):\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotalNow)}\n${discountLine}${shippingLine}\nTotal: ${fmtMXN(cardTotals.total)}\n\nVi los productos en la página web.`;
+          window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
         }, 900);
       });
     }
