@@ -262,11 +262,11 @@
       </label>
 
       <div class="pay-method-tabs" role="tablist">
-        <button type="button" class="pay-method-tab active" id="payTabCard" data-method="card">Pagar con tarjeta</button>
-        <button type="button" class="pay-method-tab" id="payTabWa" data-method="whatsapp">WhatsApp / Transferencia</button>
+        <button type="button" class="pay-method-tab" id="payTabCard" data-method="card">Pagar con tarjeta</button>
+        <button type="button" class="pay-method-tab active" id="payTabWa" data-method="whatsapp">WhatsApp / Transferencia</button>
       </div>
 
-      <div class="pay-card-panel" id="payCardPanel">
+      <div class="pay-card-panel" id="payCardPanel" hidden>
         <div class="pay-card-icons">
           <img src="img/visa.png" alt="Visa">
           <img src="img/mastercard.png" alt="Mastercard">
@@ -294,7 +294,7 @@
         <p class="pay-card-note" id="payCardNote">Tus datos de pago viajan cifrados y no se almacenan en este sitio.</p>
       </div>
 
-      <div class="pay-wa-panel" id="payWaPanel" hidden>
+      <div class="pay-wa-panel" id="payWaPanel">
         <div class="volume-tier-wrap" id="volumeTierWrap" hidden>
           <div class="volume-tier-track"><div class="volume-tier-fill" id="volumeTierFill"></div></div>
           <p class="volume-tier-hint" id="volumeTierHint"></p>
