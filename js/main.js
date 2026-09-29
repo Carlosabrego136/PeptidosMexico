@@ -136,13 +136,14 @@ const Cart = {
           <div class="cart-item-info">
             <p class="cart-item-name">${it.name}${it.variant ? ` (${it.variant})` : ''}</p>
             <p class="cart-item-price">${fmtMXN(it.unit)} c/u</p>
+            <p class="cart-item-line-total">${fmtMXN(it.unit * it.qty)}</p>
             <div class="cart-item-qty">
-              <button type="button" class="cart-item-minus" aria-label="Disminuir">−</button>
+              <button type="button" class="cart-item-minus" aria-label="Disminuir cantidad">−</button>
               <span>${it.qty}</span>
-              <button type="button" class="cart-item-plus" aria-label="Aumentar">+</button>
+              <button type="button" class="cart-item-plus" aria-label="Aumentar cantidad">+</button>
             </div>
           </div>
-          <button type="button" class="cart-item-remove" aria-label="Quitar">&times;</button>
+          <button type="button" class="cart-item-remove" aria-label="Quitar ${it.name} del carrito">&times;</button>
         </div>
       `).join('');
     }
