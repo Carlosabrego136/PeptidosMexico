@@ -2735,14 +2735,20 @@ body.modal-open { overflow: hidden; }
 .admin-variants-head h4 { font-size: 15px; margin: 0; color: var(--ink); }
 .admin-add-variant-btn { font-size: 12.5px; padding: 7px 11px; }
 .admin-hint { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; }
-.admin-variant-row { display: grid; grid-template-columns: 1fr 100px 1fr 32px; gap: 8px; margin-bottom: 8px; align-items: center; }
-.admin-variant-row input {
+.admin-variant-row { display: grid; grid-template-columns: 1fr 90px 150px 32px; gap: 8px; margin-bottom: 4px; align-items: center; }
+.admin-variant-row input:not([type="hidden"]) {
   padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 13.5px; background: var(--white);
 }
 .admin-variant-remove {
   width: 30px; height: 30px; border: none; border-radius: 50%; background: #fbe9e7; color: #9d3b2c;
   cursor: pointer; font-size: 16px; line-height: 1;
 }
+.admin-variant-image { display: flex; align-items: center; gap: 6px; }
+.admin-image-preview-sm { width: 32px; height: 32px; }
+.admin-image-preview-sm span { font-size: 9px; }
+.admin-upload-btn-sm { padding: 6px 9px; font-size: 11.5px; white-space: nowrap; }
+.admin-upload-status-sm { grid-column: 1 / -1; margin: 0 0 8px; font-size: 11px; }
+.admin-upload-status-sm:empty { display: none; }
 
 .admin-form-actions { margin-top: 18px; }
 
@@ -2750,5 +2756,7 @@ body.modal-open { overflow: hidden; }
   .admin-box { padding: 26px 18px 20px; max-height: 92vh; }
   .admin-field-row { grid-template-columns: 1fr; }
   .admin-variant-row { grid-template-columns: 1fr 1fr; grid-template-areas: "label price" "img remove"; }
+  .admin-variant-image { grid-area: img; }
+  .admin-variant-remove { grid-area: remove; }
   .admin-dash-head { flex-direction: column; }
 }

@@ -3,6 +3,15 @@
 const SHIPPING_FEE = 220; // costo de envío nacional
 const FREE_SHIPPING_THRESHOLD = 4500; // envío gratis a partir de este monto (subtotal)
 const WA_NUMBER = '5213131095135';
+
+// Datos bancarios reales para depósito/transferencia (se agregan automáticamente
+// al mensaje de pedido por WhatsApp cuando el pago es por transferencia).
+const BANK_TRANSFER_INFO = {
+  clabe: '722969010403260814',
+  beneficiario: 'Ana Ariel Camacho Alvarez',
+  institucion: 'Mercado Pago W',
+};
+
 const fmtMXN = (n) => `$${Math.round(n).toLocaleString('es-MX')} MXN`;
 const parsePrice = (str) => parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 0;
 
@@ -242,7 +251,8 @@ const Cart = {
         const discountLine = waTotals.discountPct > 0
           ? `Descuento (${waTotals.discountPct}%): −${fmtMXN(waTotals.discountAmount)}\n`
           : '';
-        const msg = `Hola! Quiero hacer este pedido (pago por transferencia):\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotal)}\n${discountLine}${shippingLine}\nTotal: ${fmtMXN(waTotals.total)}\n\nVi los productos en la página web.`;
+        const bankBlock = `\n\n💳 Datos para tu transferencia/depósito:\nCLABE: ${BANK_TRANSFER_INFO.clabe}\nBeneficiario: ${BANK_TRANSFER_INFO.beneficiario}\nInstitución: ${BANK_TRANSFER_INFO.institucion}`;
+        const msg = `Hola! Quiero hacer este pedido (pago por transferencia):\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotal)}\n${discountLine}${shippingLine}\nTotal: ${fmtMXN(waTotals.total)}${bankBlock}\n\nVi los productos en la página web.`;
         waLink.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
       }
     }

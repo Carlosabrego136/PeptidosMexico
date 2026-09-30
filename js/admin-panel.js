@@ -340,7 +340,7 @@
 
         '<div class="admin-variants-block">' +
           '<div class="admin-variants-head"><h4>Presentaciones / variantes</h4><button type="button" class="admin-add-btn admin-add-variant-btn" id="pfAddVariant">+ Agregar presentación</button></div>' +
-          '<p class="admin-hint">Si el producto tiene varias presentaciones (ej. 10 mg, 30 mg), agrégalas aquí. Si no tiene, déjalo vacío y se usará el precio base.</p>' +
+          '<p class="admin-hint">Si el producto tiene varias presentaciones (ej. 10 mg, 30 mg), agrégalas aquí. Si no tiene, déjalo vacío y se usará el precio base. La imagen de cada presentación es opcional (si no subes una, se usa la foto principal del producto) — misma medida recomendada: 720 × 860 px.</p>' +
           '<div id="pfVariantsList"></div>' +
         '</div>' +
 
@@ -370,13 +370,24 @@
     function renderVariantRows(list) {
       var vEl = document.getElementById('pfVariantsList');
       vEl.innerHTML = list.map(function (v, i) {
+        var imgId = 'pfvImg' + i;
         return (
           '<div class="admin-variant-row" data-idx="' + i + '">' +
             '<input placeholder="Etiqueta (ej: 30 mg)" class="pfv-label" value="' + escapeHtml(v.label) + '">' +
             '<input placeholder="Precio" type="number" step="0.01" class="pfv-price" value="' + v.price + '">' +
-            '<input placeholder="Imagen (opcional)" class="pfv-img" value="' + escapeHtml(v.img || '') + '">' +
+            '<div class="admin-variant-image">' +
+              '<div class="admin-image-preview admin-image-preview-sm" id="' + imgId + 'Preview">' +
+                (v.img ? '<img src="' + escapeHtml(v.img) + '" alt="">' : '<span>—</span>') +
+              '</div>' +
+              '<label class="admin-upload-btn admin-upload-btn-sm">' +
+                'Subir' +
+                '<input type="file" accept="image/jpeg,image/png,image/webp" class="admin-image-input" data-target="' + imgId + '" hidden>' +
+              '</label>' +
+              '<input type="hidden" class="pfv-img" id="' + imgId + '" value="' + escapeHtml(v.img || '') + '">' +
+            '</div>' +
             '<button type="button" class="admin-variant-remove" data-remove-idx="' + i + '">&times;</button>' +
-          '</div>'
+          '</div>' +
+          '<p class="admin-upload-status admin-upload-status-sm" id="' + imgId + 'Status"></p>'
         );
       }).join('');
 
