@@ -1,0 +1,15 @@
+{
+  "name": "mundo-peptidos-mexico",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sitio web + panel de administrador de Mundo Péptidos México",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "pg": "^8.12.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.6.0"
+  }
+}
