@@ -29,3 +29,15 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE INDEX IF NOT EXISTS idx_products_featured ON products (featured, featured_order);
 CREATE INDEX IF NOT EXISTS idx_products_active ON products (active);
+
+-- Imágenes subidas desde el panel de administrador (fotos de producto y COA).
+-- Se guardan directamente en la base de datos para no depender de ningún
+-- servicio externo de almacenamiento; se sirven vía /api/images/:id.
+CREATE TABLE IF NOT EXISTS product_images (
+  id          SERIAL PRIMARY KEY,
+  mime_type   TEXT NOT NULL,
+  width       INTEGER,
+  height      INTEGER,
+  data        BYTEA NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);

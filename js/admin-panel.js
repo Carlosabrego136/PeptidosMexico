@@ -13,6 +13,7 @@
     logout: '/api/auth/logout',
     products: '/api/products',
     product: function (id) { return '/api/products/' + id; },
+    upload: '/api/upload',
   };
 
   var state = {
@@ -193,6 +194,109 @@
 
   /* ---------- Formulario de producto (crear/editar) ---------- */
 
+  function imageFieldMarkup(id, label, currentValue, hintHtml) {
+    var hasImg = !!currentValue;
+    return (
+      '<div class="admin-field admin-image-field">' +
+        '<label>' + label + '</label>' +
+        '<p class="admin-hint">' + hintHtml + '</p>' +
+        '<div class="admin-image-upload">' +
+          '<div class="admin-image-preview" id="' + id + 'Preview">' +
+            (hasImg ? '<img src="' + escapeHtml(currentValue) + '" alt="">' : '<span>Sin imagen</span>') +
+          '</div>' +
+          '<div class="admin-image-upload-controls">' +
+            '<label class="admin-upload-btn">' +
+              'Subir imagen' +
+              '<input type="file" accept="image/jpeg,image/png,image/webp" class="admin-image-input" data-target="' + id + '" hidden>' +
+            '</label>' +
+            '<span class="admin-upload-status" id="' + id + 'Status"></span>' +
+          '</div>' +
+        '</div>' +
+        '<input type="hidden" id="' + id + '" value="' + escapeHtml(currentValue) + '">' +
+      '</div>'
+    );
+  }
+
+  function fileToBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = reader.result || '';
+        var comma = result.indexOf(',');
+        resolve(comma >= 0 ? result.slice(comma + 1) : result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function readImageDimensions(file) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        URL.revokeObjectURL(url);
+      };
+      img.onerror = function () {
+        resolve({ width: null, height: null });
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    });
+  }
+
+  async function handleImageInputChange(input) {
+    var targetId = input.getAttribute('data-target');
+    var hiddenInput = document.getElementById(targetId);
+    var statusEl = document.getElementById(targetId + 'Status');
+    var previewEl = document.getElementById(targetId + 'Preview');
+    var file = input.files && input.files[0];
+    if (!file) return;
+
+    var ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!ALLOWED.includes(file.type)) {
+      statusEl.textContent = 'Formato no permitido. Usa JPG, PNG o WEBP.';
+      statusEl.className = 'admin-upload-status admin-upload-error';
+      return;
+    }
+    if (file.size > 2.5 * 1024 * 1024) {
+      statusEl.textContent = 'La imagen pesa más de 2.5 MB. Comprímela e intenta de nuevo.';
+      statusEl.className = 'admin-upload-status admin-upload-error';
+      return;
+    }
+
+    statusEl.textContent = 'Subiendo…';
+    statusEl.className = 'admin-upload-status';
+
+    try {
+      var dims = await readImageDimensions(file);
+      var base64 = await fileToBase64(file);
+
+      var r = await fetch(API.upload, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mime_type: file.type,
+          data_base64: base64,
+          width: dims.width,
+          height: dims.height,
+        }),
+      });
+      var data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'No se pudo subir la imagen');
+
+      hiddenInput.value = data.url;
+      previewEl.innerHTML = '<img src="' + data.url + '" alt="">';
+      statusEl.textContent = 'Subida correctamente ✓';
+      statusEl.className = 'admin-upload-status admin-upload-ok';
+    } catch (err) {
+      statusEl.textContent = err.message || 'Error al subir la imagen.';
+      statusEl.className = 'admin-upload-status admin-upload-error';
+    }
+  }
+
   function emptyProduct() {
     return {
       id: null, name: '', category: '', formula: '', mg_label: '', price: 0,
@@ -225,8 +329,10 @@
           '<div class="admin-field"><label>Precio base (MXN)</label><input id="pfPrice" type="number" step="0.01" value="' + p.price + '"></div>' +
           '<div class="admin-field"><label>Orden en catálogo</label><input id="pfSort" type="number" value="' + p.sort_order + '"></div>' +
         '</div>' +
-        '<div class="admin-field"><label>Imagen (ruta, ej: img/prod-nuevo.jpg)</label><input id="pfImage" value="' + escapeHtml(p.image) + '"></div>' +
-        '<div class="admin-field"><label>Imagen de COA (opcional)</label><input id="pfCoa" value="' + escapeHtml(p.coa_image) + '"></div>' +
+        imageFieldMarkup('pfImage', 'Foto del producto', p.image,
+          'Medida recomendada: <strong>720 × 860 px</strong>, vertical (igual a las fotos actuales del catálogo). Fondo blanco, JPG/PNG/WEBP, máximo 2.5 MB.') +
+        imageFieldMarkup('pfCoa', 'Imagen del certificado COA (opcional)', p.coa_image,
+          'Medida recomendada: <strong>867 × 1280 px</strong>, vertical (igual a los COA actuales). JPG/PNG/WEBP, máximo 2.5 MB.') +
 
         '<div class="admin-field admin-check-field"><label><input type="checkbox" id="pfFeatured" ' + (p.featured ? 'checked' : '') + '> Mostrar en "Más buscados" (inicio)</label></div>' +
         '<div class="admin-field" id="pfFeaturedOrderWrap" ' + (p.featured ? '' : 'hidden') + '><label>Posición en "Más buscados" (1 = primero)</label><input id="pfFeaturedOrder" type="number" value="' + (p.featured_order || 1) + '"></div>' +
@@ -393,6 +499,13 @@
             .then(function () { loadProducts(); });
         }
         return;
+      }
+    });
+
+    document.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t && t.classList && t.classList.contains('admin-image-input')) {
+        handleImageInputChange(t);
       }
     });
 
