@@ -12,6 +12,10 @@ const BANK_TRANSFER_INFO = {
   institucion: 'Mercado Pago W',
 };
 
+// Llave pública de Mercado Pago (no es secreta: está hecha para usarse en el navegador).
+// El cobro real sucede en el servidor con la llave privada (variable de entorno MP_ACCESS_TOKEN).
+const MP_PUBLIC_KEY = 'APP_USR-e2f90246-3744-4ecb-ab7c-af38a74d59ea';
+
 const fmtMXN = (n) => `$${Math.round(n).toLocaleString('es-MX')} MXN`;
 const parsePrice = (str) => parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 0;
 
@@ -758,40 +762,177 @@ document.addEventListener('DOMContentLoaded', () => {
         cardCvv.value = cardCvv.value.replace(/\D/g, '').slice(0, 4);
       });
     }
+    // Quita el estado de "campo inválido" en cuanto el cliente vuelve a escribir
+    ['cardEmail', 'cardName', 'cardNumber', 'cardExpiry', 'cardCvv'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => el.classList.remove('field-invalid'));
+    });
 
-    // El cobro con tarjeta se activará al conectar una pasarela real (Stripe/Mercado Pago/Conekta o WooCommerce).
-    // Por ahora este botón NUNCA envía ni guarda los datos de la tarjeta: solo confirma el pedido por WhatsApp
-    // para no perder la venta mientras se activa el cobro en línea.
+    // ---------- Cobro real con tarjeta vía Mercado Pago ----------
+    // El número de tarjeta se tokeniza en el navegador con el SDK oficial de Mercado Pago
+    // (mp.createCardToken) y viaja directo a los servidores de Mercado Pago: nunca pasa por
+    // este sitio ni por nuestro servidor. Solo enviamos el token (de un solo uso) a
+    // /api/payments/process, que hace el cobro real con la llave privada.
+    let mpClient = null;
+    function getMpClient() {
+      if (mpClient) return mpClient;
+      if (typeof MercadoPago === 'undefined') return null;
+      mpClient = new MercadoPago(MP_PUBLIC_KEY, { locale: 'es-MX' });
+      return mpClient;
+    }
+
     const payCardSubmit = document.getElementById('payCardSubmit');
     const payCardNote = document.getElementById('payCardNote');
+    const cardEmail = document.getElementById('cardEmail');
+
+    function setCardNote(text, type) {
+      if (!payCardNote) return;
+      payCardNote.textContent = text;
+      payCardNote.classList.remove('pay-note-info', 'pay-note-error', 'pay-note-success');
+      if (type) payCardNote.classList.add(type);
+    }
+
+    function markInvalid(el, invalid) {
+      if (!el) return;
+      el.classList.toggle('field-invalid', !!invalid);
+    }
+
+    function validateCardForm() {
+      const cardNameEl = document.getElementById('cardName');
+      const errors = [];
+
+      const emailOk = cardEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cardEmail.value.trim());
+      markInvalid(cardEmail, !emailOk);
+      if (!emailOk) errors.push('tu correo electrónico');
+
+      const nameOk = cardNameEl && cardNameEl.value.trim().length >= 3;
+      markInvalid(cardNameEl, !nameOk);
+      if (!nameOk) errors.push('el nombre en la tarjeta');
+
+      const digits = cardNumber ? cardNumber.value.replace(/\D/g, '') : '';
+      const numberOk = digits.length >= 13 && digits.length <= 19;
+      markInvalid(cardNumber, !numberOk);
+      if (!numberOk) errors.push('el número de tarjeta');
+
+      const expiryDigits = cardExpiry ? cardExpiry.value.replace(/\D/g, '') : '';
+      let expiryOk = expiryDigits.length === 4;
+      let expMonth = '', expYear = '';
+      if (expiryOk) {
+        expMonth = expiryDigits.slice(0, 2);
+        expYear = expiryDigits.slice(2, 4);
+        const monthNum = parseInt(expMonth, 10);
+        if (monthNum < 1 || monthNum > 12) expiryOk = false;
+      }
+      markInvalid(cardExpiry, !expiryOk);
+      if (!expiryOk) errors.push('la fecha de vencimiento');
+
+      const cvvOk = cardCvv && cardCvv.value.replace(/\D/g, '').length >= 3;
+      markInvalid(cardCvv, !cvvOk);
+      if (!cvvOk) errors.push('el CVV');
+
+      return { ok: errors.length === 0, errors, digits, expMonth, expYear, cardNameEl };
+    }
+
     if (payCardSubmit) {
-      payCardSubmit.addEventListener('click', () => {
+      payCardSubmit.addEventListener('click', async () => {
         if (!Cart.get().length) return;
-        const cardNameEl = document.getElementById('cardName');
+
+        const mp = getMpClient();
+        if (!mp) {
+          setCardNote('No se pudo cargar el sistema de pagos. Revisa tu conexión e intenta de nuevo.', 'pay-note-error');
+          return;
+        }
+
+        const v = validateCardForm();
+        if (!v.ok) {
+          setCardNote(`Revisa ${v.errors.join(', ')}.`, 'pay-note-error');
+          return;
+        }
+
         payCardSubmit.disabled = true;
         payCardSubmit.textContent = 'Procesando…';
-        setTimeout(() => {
+        setCardNote('Procesando tu pago, no cierres esta ventana…', 'pay-note-info');
+
+        const subtotalNow = Cart.subtotal();
+        const cardTotals = computeMethodTotals('card', subtotalNow, Cart.get().length > 0);
+        const items = Cart.get();
+        const externalReference = `MPM-${Date.now()}`;
+
+        const restoreButton = () => {
           payCardSubmit.disabled = false;
-          const subtotalNow = Cart.subtotal();
-          const cardTotals = computeMethodTotals('card', subtotalNow, Cart.get().length > 0);
           payCardSubmit.innerHTML = `Pagar <span id="payCardAmount">${fmtMXN(cardTotals.total)}</span>`;
-          if (payCardNote) {
-            payCardNote.textContent = 'El cobro con tarjeta se activará muy pronto. Para no detener tu pedido, lo confirmamos por WhatsApp.';
-            payCardNote.classList.add('pay-note-info');
+        };
+
+        try {
+          const bin = v.digits.slice(0, 6);
+          const [tokenResult, methodsResult] = await Promise.all([
+            mp.createCardToken({
+              cardNumber: v.digits,
+              cardholderName: v.cardNameEl.value.trim(),
+              cardExpirationMonth: v.expMonth,
+              cardExpirationYear: `20${v.expYear}`,
+              securityCode: cardCvv.value.replace(/\D/g, ''),
+            }),
+            mp.getPaymentMethods({ bin }),
+          ]);
+
+          const token = tokenResult && tokenResult.id;
+          const methodInfo = methodsResult && methodsResult.results && methodsResult.results[0];
+          if (!token || !methodInfo) {
+            throw new Error('No se pudo validar la tarjeta. Revisa los datos e intenta de nuevo.');
           }
-          // Nunca se guarda ni se envía el número de tarjeta a ningún lado — solo se limpia el formulario.
-          if (cardNumber) cardNumber.value = '';
-          if (cardExpiry) cardExpiry.value = '';
-          if (cardCvv) cardCvv.value = '';
-          if (cardNameEl) cardNameEl.value = '';
-          // Mensaje de confirmación con los totales de TARJETA (sin tabla escalonada por volumen)
-          const items = Cart.get();
+
+          const payload = {
+            token,
+            payment_method_id: methodInfo.id,
+            issuer_id: methodInfo.issuer && methodInfo.issuer.id,
+            installments: 1,
+            transaction_amount: cardTotals.total,
+            description: 'Pedido Mundo Péptidos México',
+            payer_email: cardEmail.value.trim(),
+            external_reference: externalReference,
+          };
+
+          const resp = await fetch('/api/payments/process', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await resp.json();
+
+          if (!resp.ok) {
+            throw new Error(data.error || 'Tu banco rechazó el pago. Verifica los datos o intenta con otra tarjeta.');
+          }
+
           const lines = items.map(it => `• ${it.qty} x ${it.name}${it.variant ? ` (${it.variant})` : ''} — ${fmtMXN(it.unit * it.qty)}`);
           const shippingLine = cardTotals.freeShipping ? 'Envío nacional: Gratis 🎉' : `Envío nacional: ${fmtMXN(cardTotals.shipping)}`;
           const discountLine = cardTotals.discountPct > 0 ? `Descuento (${cardTotals.discountPct}%): −${fmtMXN(cardTotals.discountAmount)}\n` : '';
-          const msg = `Hola! Quiero hacer este pedido (pago con tarjeta / Mercado Pago):\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotalNow)}\n${discountLine}${shippingLine}\nTotal: ${fmtMXN(cardTotals.total)}\n\nVi los productos en la página web.`;
-          window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
-        }, 900);
+
+          if (data.status === 'approved') {
+            setCardNote('¡Pago aprobado! Te redirigimos a WhatsApp para confirmar tu envío.', 'pay-note-success');
+            const msg = `Hola! Acabo de pagar con tarjeta mi pedido (pago aprobado ✅ ref. ${externalReference}):\n${lines.join('\n')}\n\nSubtotal: ${fmtMXN(subtotalNow)}\n${discountLine}${shippingLine}\nTotal: ${fmtMXN(cardTotals.total)}\n\nMe falta confirmar mi dirección de envío.`;
+            Cart.clear();
+            if (cardNumber) cardNumber.value = '';
+            if (cardExpiry) cardExpiry.value = '';
+            if (cardCvv) cardCvv.value = '';
+            if (v.cardNameEl) v.cardNameEl.value = '';
+            if (cardEmail) cardEmail.value = '';
+            window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+            restoreButton();
+          } else if (data.status === 'in_process' || data.status === 'pending') {
+            setCardNote('Tu pago está en revisión. Te avisaremos por WhatsApp en cuanto se confirme.', 'pay-note-info');
+            const msg = `Hola! Mi pago con tarjeta quedó en revisión (ref. ${externalReference}):\n${lines.join('\n')}\n\nTotal: ${fmtMXN(cardTotals.total)}\n\n¿Me pueden confirmar en cuanto se apruebe?`;
+            window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+            restoreButton();
+          } else {
+            setCardNote('El pago fue rechazado. Verifica los datos de tu tarjeta o intenta con otra.', 'pay-note-error');
+            restoreButton();
+          }
+        } catch (err) {
+          console.error('card payment error', err);
+          setCardNote(err.message || 'No se pudo procesar el pago. Intenta de nuevo.', 'pay-note-error');
+          restoreButton();
+        }
       });
     }
   }
